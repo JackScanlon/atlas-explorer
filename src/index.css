@@ -1,0 +1,445 @@
+:root {
+  /* Font */
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  font-synthesis: none;
+  font-weight: normal;
+  font-kerning: none;
+  font-style: normal;
+  letter-spacing: normal;
+  line-height: normal;
+  text-rendering: optimizeLegibility;
+  -webkit-text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-overflow-scrolling: touch;
+  -webkit-tap-highlight-color: transparent;
+
+  /* Doc */
+  width: 100%;
+  min-width: 100%;
+  max-width: 100%;
+
+  height: 100%;
+  min-height: 100%;
+  max-height: 100%;
+
+  /* Colour scheme(s) */
+  color-scheme: light dark;
+
+  /* Overflow */
+  overscroll-behavior: none;
+  -webkit-overflow-scrolling: unset;
+}
+
+:root[data-theme='light'],
+:root[data-theme='light']::before,
+:root[data-theme='light']::after {
+  /* Colors */
+  --solid-white: #FFFFFF;
+  --silver: #CCCCCC;
+  --mercury: #E5E5E5;
+  --dusty-gray: #999999;
+  --solid-gray: #848484;
+
+  --mine-shaft: #242424;
+  --cloud-burst: #213547;
+
+  --hoki-blue: #69869F;
+  --royal-blue: #535bf2;
+  --cornflower-blue: #646cff;
+
+  /* Theme */
+  --bg-color: var(--solid-white);
+
+  --border-color: var(--cloud-burst);
+
+  --text-primary: var(--mine-shaft);
+
+  --anchor-primary: var(--royal-blue);
+  --anchor-hover: var(--cornflower-blue);
+
+  /* Mod */
+  --dark-shadow-color: 25, 25, 25;
+  --light-shadow-color: 200, 200, 200;
+
+  --shadow-t100-color: rgba(var(--dark-shadow-color), 1.00);
+  --shadow-t025-color: rgba(var(--dark-shadow-color), 0.35);
+  --shadow-t015-color: rgba(var(--dark-shadow-color), 0.35);
+  --shadow-t010-color: rgba(var(--dark-shadow-color), 0.23);
+  --shadow-t006-color: rgba(var(--dark-shadow-color), 0.14);
+  --shadow-t005-color: rgba(var(--dark-shadow-color), 0.11);
+
+  --dark-inset-glow-color: 0, 0%, 0%;
+  --dark-drop-glow-color: 0, 0%, 100%;
+
+  --light-inset-glow-color: 0, 0%, 100%;
+  --light-drop-glow-color: 0, 0%, 0%;
+
+  --glow-p0: hsla(var(--dark-inset-glow-color), 0.075);
+  --glow-p1: hsla(var(--dark-drop-glow-color), 0.050);
+  --glow-p2: hsla(var(--dark-drop-glow-color), 0.020);
+  --glow-p3: hsla(var(--dark-drop-glow-color), 0.045);
+  --glow-p4: hsla(var(--dark-drop-glow-color), 0.009);
+
+  /* Preset */
+  --shadow-small: 0 1px 3px 0 var(--shadow-t010-color),
+                  0 1px 2px 0 var(--shadow-t006-color);
+
+  --shadow-medium: 0 4px 6px -1px var(--shadow-t010-color),
+                    0 2px 4px -1px var(--shadow-t006-color);
+
+  --shadow-large: 0 10px 15px -3px var(--shadow-t010-color),
+                  0 4px 6px -2px var(--shadow-t005-color);
+
+  --list-color: var(--mercury);
+  --item-color: var(--cornflower-blue);
+  --box-color: var(--mercury);
+}
+
+:root[data-theme='dark'],
+:root[data-theme='dark']::before,
+:root[data-theme='dark']::after {
+  /* Colors */
+  --solid-white: #FFFFFF;
+  --silver: #CCCCCC;
+  --mercury: #E5E5E5;
+  --dusty-gray: #999999;
+  --solid-gray: #848484;
+
+  --mine-shaft: #242424;
+  --cloud-burst: #213547;
+
+  --hoki-blue: #69869F;
+  --royal-blue: #535bf2;
+  --cornflower-blue: #646cff;
+
+  /* Theme */
+  --bg-color: var(--mine-shaft);
+
+  --border-color: var(--mercury);
+
+  --text-primary: var(--solid-white);
+
+  --anchor-primary: var(--royal-blue);
+  --anchor-hover: var(--cornflower-blue);
+
+  /* Mod */
+  --dark-shadow-color: 25, 25, 25;
+  --light-shadow-color: 200, 200, 200;
+
+  --shadow-t100-color: rgba(var(--light-shadow-color), 1.00);
+  --shadow-t025-color: rgba(var(--light-shadow-color), 0.25);
+  --shadow-t015-color: rgba(var(--light-shadow-color), 0.15);
+  --shadow-t010-color: rgba(var(--light-shadow-color), 0.10);
+  --shadow-t006-color: rgba(var(--light-shadow-color), 0.06);
+  --shadow-t005-color: rgba(var(--light-shadow-color), 0.05);
+
+  --dark-inset-glow-color: 0, 0%, 0%;
+  --dark-drop-glow-color: 0, 0%, 100%;
+
+  --light-inset-glow-color: 0, 0%, 100%;
+  --light-drop-glow-color: 0, 0%, 0%;
+
+  --glow-p0: hsla(var(--light-inset-glow-color), 0.200);
+  --glow-p1: hsla(var(--light-drop-glow-color), 0.050);
+  --glow-p2: hsla(var(--light-drop-glow-color), 0.020);
+  --glow-p3: hsla(var(--light-drop-glow-color), 0.045);
+  --glow-p4: hsla(var(--light-drop-glow-color), 0.009);
+
+  /* Preset */
+  --shadow-small: 0 1px 3px 0 var(--shadow-t010-color),
+                  0 1px 2px 0 var(--shadow-t006-color);
+
+  --shadow-medium: 0 4px 6px -1px var(--shadow-t010-color),
+                    0 2px 4px -1px var(--shadow-t006-color);
+
+  --shadow-large: 0 10px 15px -3px var(--shadow-t010-color),
+                  0 4px 6px -2px var(--shadow-t005-color);
+
+  --list-color: var(--mine-shaft);
+  --item-color: var(--cornflower-blue);
+  --box-color: var(--mine-shaft);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  display: block;
+  width: 100%;
+  min-width: 100%;
+  max-width: 100%;
+  height: 100%;
+  min-height: 100%;
+  max-height: 100%;
+  margin: 0;
+  overflow: hidden;
+  z-index: 0;
+
+  color: var(--text-primary);
+  background-color: var(--bg-color);
+  transition: color 0.2s, background-color 0.2s;
+
+  overscroll-behavior: none;
+  -webkit-overflow-scrolling: unset;
+
+  touch-action: none;
+}
+
+a {
+  color: var(--anchor-primary);
+}
+
+a:hover {
+  color: var(--anchor-hover);
+}
+
+#root {
+  display: block;
+  width: 100%;
+  min-width: 100%;
+  max-width: 100%;
+  height: 100%;
+  min-height: 100%;
+  max-height: 100%;
+  overflow: hidden;
+  z-index: 0;
+}
+
+/* Utils */
+.no-user-selection {
+  user-select: none;
+  -ms-user-select: none;
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
+.thin-scrollbar,
+.thin-scrollbar-children * {
+  scrollbar-width: thin !important;
+}
+
+.thin-scrollbar::-webkit-scrollbar,
+.thin-scrollbar-children *::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.thin-scrollbar::-webkit-scrollbar-track,
+.thin-scrollbar-children *::-webkit-scrollbar-track {
+  border-radius: 6px;
+  -webkit-border-radius: 6px;
+}
+
+.thin-scrollbar::-webkit-scrollbar-thumb,
+.thin-scrollbar-children *::-webkit-scrollbar-thumb {
+  background: transparent;
+  border-radius: 6px;
+  -webkit-border-radius: 6px;
+}
+
+.thin-scrollbar::-webkit-scrollbar-thumb:window-inactive,
+.thin-scrollbar-children *::-webkit-scrollbar-thumb:window-inactive {
+  background: transparent;
+}
+
+/* Inputs */
+input[type='radio'],
+input[type='checkbox'] {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+}
+
+:root[data-theme='light'] input[type='radio'],
+:root[data-theme='light'] input[type='checkbox'],
+:root[data-theme='light'] input[type='radio']::after,
+:root[data-theme='light'] input[type='checkbox']::after,
+:root[data-theme='light'] input[type='radio']::before,
+:root[data-theme='light'] input[type='checkbox']::before {
+  --active: var(--royal-blue);
+  --active-inner: var(--solid-white);
+  --focus: 2px rgba(39, 94, 254, .3);
+  --border: var(--silver);
+  --border-hover: var(--anchor-hover);
+  --background: var(--bg-color);
+  --disabled: var(--silver);
+  --disabled-inner: var(--mercury);
+}
+
+:root[data-theme='dark'] input[type='radio'],
+:root[data-theme='dark'] input[type='checkbox'],
+:root[data-theme='dark'] input[type='radio']::after,
+:root[data-theme='dark'] input[type='checkbox']::after,
+:root[data-theme='dark'] input[type='radio']::before,
+:root[data-theme='dark'] input[type='checkbox']::before {
+  --active: var(--cornflower-blue);
+  --active-inner: var(--solid-white);
+  --focus: 2px rgba(39, 94, 254, .3);
+  --border: var(--mercury);
+  --border-hover: var(--anchor-hover);
+  --background: var(--bg-color);
+  --disabled: var(--mercury);
+  --disabled-inner: var(--hoki-blue);
+}
+
+input[type='radio'],
+input[type='checkbox'] {
+  display: inline-block;
+  position: relative;
+  cursor: pointer;
+  height: 21px;
+  margin: 0;
+  vertical-align: top;
+  border: 1px solid var(--bc-state, var(--border));
+  outline: none;
+  background: var(--bg-state, var(--background));
+  transition: background .3s, border-color .3s, box-shadow .2s;
+}
+
+input[type='radio']::after,
+input[type='checkbox']::after {
+  content: '';
+  display: block;
+  left: 0;
+  top: 0;
+  position: absolute;
+  transition: transform var(--transition-duration, .3s) var(--transition-easing, ease),
+  opacity var(--opacity-state, .2s),
+  filter 250ms ease-in-out;
+}
+
+input[type='radio']:checked,
+input[type='checkbox']:checked {
+  --bg-state: var(--active);
+  --bc-state: var(--active);
+  --opacity-state: .3s;
+  --transition-duration: .6s;
+  --transition-easing: cubic-bezier(.2, .85, .32, 1.2);
+}
+
+
+input[type='radio']:disabled,
+input[type='checkbox']:disabled {
+  --bg-state: var(--disabled);
+  cursor: not-allowed;
+  opacity: .9;
+}
+
+input[type='radio']:disabled + label,
+input[type='checkbox']:disabled + label {
+  cursor: not-allowed;
+}
+
+input[type='radio']:disabled:checked,
+input[type='checkbox']:disabled:checked {
+  --bg-state: var(--disabled-inner);
+  --bc-state: var(--border);
+}
+
+input[type='radio']:hover:not(:checked):not(:disabled),
+input[type='checkbox']:hover:not(:checked):not(:disabled) {
+  --bc-state: var(--border-hover);
+}
+
+input[type='radio']:focus,
+input[type='checkbox']:focus {
+  box-shadow: 0 0 0 var(--focus);
+}
+
+input[type='radio']:not(.switch),
+input[type='checkbox']:not(.switch) {
+  width: 21px;
+}
+
+input[type='radio']:not(.switch)::after,
+input[type='checkbox']:not(.switch)::after {
+  opacity: var(--target-opacity, 0);
+}
+
+input[type='radio']:not(.switch):checked,
+input[type='checkbox']:not(.switch):checked {
+  --target-opacity: 1;
+}
+
+
+input[type='radio'] + label ,
+input[type='checkbox'] + label {
+  font-size: 14px;
+  line-height: 21px;
+  display: inline-block;
+  vertical-align: top;
+  cursor: pointer;
+  margin-left: 4px;
+}
+
+
+input[type='checkbox']:not(.switch) {
+  border-radius: 7px;
+}
+
+input[type='checkbox']:not(.switch)::after {
+  width: 5px;
+  height: 9px;
+  border: 2px solid var(--active-inner);
+  border-top: 0;
+  border-left: 0;
+  left: 7px;
+  top: 4px;
+  transform: rotate(var(--rotation, 20deg));
+}
+
+input[type='checkbox']:not(.switch):checked {
+  --rotation: 43deg;
+}
+
+input[type='checkbox'].switch {
+  --position: 0px;
+  --thumb-color: var(--border);
+
+  width: 38px;
+  border-radius: 11px;
+}
+
+input[type='checkbox'].switch::after {
+  left: 2px;
+  opacity: 1;
+  top: 2px;
+  border-radius: 50%;
+  width: 15px;
+  height: 15px;
+  background: var(--thumb-color);
+  transform: translateX(var(--position));
+  filter: brightness(0.75);
+  transition: transform 250ms ease-in-out, filter 250ms ease-in-out;
+}
+
+input[type='checkbox'].switch:checked::after {
+  filter: brightness(1.25);
+}
+
+input[type='checkbox'].switch:checked {
+  --position: 17px;
+}
+
+input[type='radio'] {
+  border-radius: 50%;
+}
+
+input[type='radio']::after {
+  width: 19px;
+  height: 19px;
+  border-radius: 50%;
+  background: var(--active-inner);
+  opacity: 0;
+  transform: scale(var(--scale, 0.7));
+}
+
+input[type='radio']:checked {
+  --scale: 0.5;
+}

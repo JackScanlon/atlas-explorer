@@ -1,0 +1,36 @@
+.app-footer {
+  display: flex;
+  position: fixed;
+  align-items: center;
+  justify-content: center;
+  bottom: 0;
+  width: 100%;
+  max-width: 100%;
+  height: fit-content;
+  max-height: 75px;
+  padding: 0rem 1rem;
+  margin: 0px;
+  z-index: 4;
+}
+
+.app-footer > .container {
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 2160px;
+  height: 100%;
+  max-height: 100%;
+  margin: 0px;
+  padding: 0px;
+}
+
+.app-footer > .container > .version-info {
+  pointer-events: none;
+  padding: 0.5rem;
+  margin-left: auto;
+  border-radius: 0.5rem;
+  background-color: var(--bg-color);
+  filter: brightness(90%);
+}

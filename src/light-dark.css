@@ -1,0 +1,113 @@
+/**
+ * For when iOS actually supports `light-dark`...
+ *
+ */
+
+:root {
+  /* Font */
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  font-synthesis: none;
+  font-weight: normal;
+  font-kerning: none;
+  font-style: normal;
+  letter-spacing: normal;
+  line-height: normal;
+  text-rendering: optimizeLegibility;
+  -webkit-text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-overflow-scrolling: touch;
+  -webkit-tap-highlight-color: transparent;
+
+  /* Doc */
+  width: 100%;
+  min-width: 100%;
+  max-width: 100%;
+
+  height: 100%;
+  min-height: 100%;
+  max-height: 100%;
+
+  /* Colour scheme(s) */
+  color-scheme: light dark;
+
+  /* Colors */
+  --solid-white: #FFFFFF;
+  --silver: #CCCCCC;
+  --mercury: #E5E5E5;
+  --dusty-gray: #999999;
+  --solid-gray: #848484;
+
+  --mine-shaft: #242424;
+  --cloud-burst: #213547;
+
+  --hoki-blue: #69869F;
+  --royal-blue: #535bf2;
+  --cornflower-blue: #646cff;
+
+  /* Theme */
+  --bg-color: light-dark(var(--solid-white), var(--mine-shaft));
+
+  --border-color: light-dark(var(--cloud-burst), var(--mercury));
+
+  --text-primary: light-dark(var(--mine-shaft), var(--solid-white));
+
+  --anchor-primary: var(--royal-blue);
+  --anchor-hover: var(--cornflower-blue);
+
+  /* Mod */
+  --dark-shadow-color: 25, 25, 25;
+  --light-shadow-color: 200, 200, 200;
+
+  --shadow-t100-color: light-dark(rgba(var(--dark-shadow-color), 1.00), rgba(var(--light-shadow-color), 1.00));
+  --shadow-t025-color: light-dark(rgba(var(--dark-shadow-color), 0.35), rgba(var(--light-shadow-color), 0.25));
+  --shadow-t015-color: light-dark(rgba(var(--dark-shadow-color), 0.35), rgba(var(--light-shadow-color), 0.15));
+  --shadow-t010-color: light-dark(rgba(var(--dark-shadow-color), 0.23), rgba(var(--light-shadow-color), 0.10));
+  --shadow-t006-color: light-dark(rgba(var(--dark-shadow-color), 0.14), rgba(var(--light-shadow-color), 0.06));
+  --shadow-t005-color: light-dark(rgba(var(--dark-shadow-color), 0.11), rgba(var(--light-shadow-color), 0.05));
+
+  --dark-inset-glow-color: 0, 0%, 0%;
+  --dark-drop-glow-color: 0, 0%, 100%;
+
+  --light-inset-glow-color: 0, 0%, 100%;
+  --light-drop-glow-color: 0, 0%, 0%;
+
+  --glow-p0: light-dark(hsla(var(--dark-inset-glow-color), 0.075), hsla(var(--light-inset-glow-color), 0.200));
+  --glow-p1: light-dark(hsla(var(--dark-drop-glow-color), 0.050), hsla(var(--light-drop-glow-color), 0.050));
+  --glow-p2: light-dark(hsla(var(--dark-drop-glow-color), 0.020), hsla(var(--light-drop-glow-color), 0.020));
+  --glow-p3: light-dark(hsla(var(--dark-drop-glow-color), 0.045), hsla(var(--light-drop-glow-color), 0.045));
+  --glow-p4: light-dark(hsla(var(--dark-drop-glow-color), 0.009), hsla(var(--light-drop-glow-color), 0.009));
+
+  /* Preset */
+  --shadow-small: 0 1px 3px 0 var(--shadow-t010-color),
+                  0 1px 2px 0 var(--shadow-t006-color);
+
+  --shadow-medium: 0 4px 6px -1px var(--shadow-t010-color),
+                    0 2px 4px -1px var(--shadow-t006-color);
+
+  --shadow-large: 0 10px 15px -3px var(--shadow-t010-color),
+                  0 4px 6px -2px var(--shadow-t005-color);
+
+  --list-color: light-dark(var(--mercury), var(--mine-shaft));
+  --item-color: var(--cornflower-blue);
+  --box-color: light-dark(var(--mercury), var(--mine-shaft));
+}
+
+
+input[type='radio'],
+input[type='checkbox'] {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+
+  --active: light-dark(var(--royal-blue), var(--cornflower-blue));
+  --active-inner: light-dark(var(--solid-white), var(--solid-white));
+  --focus: 2px rgba(39, 94, 254, .3);
+  --border: light-dark(var(--silver), var(--mercury));
+  --border-hover: var(--anchor-hover);
+  --background: var(--bg-color);
+  --disabled: light-dark(var(--silver), var(--mercury));
+  --disabled-inner: light-dark(var(--mercury), var(--hoki-blue));
+}
