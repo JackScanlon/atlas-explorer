@@ -28,6 +28,11 @@ This application was developed with:
 
 ## 3. Usage
 
+> [!CAUTION]
+> Please note that you will need the Atlas dataset to use this app:
+>   - This app requires the pre-processed `explorer-data.json` file to display datapoints
+>   - See `.processing/create_data.R` to process & produce the `json` data output file
+
 ### 3.1. Prerequisites
 
 1. Install [git](https://git-scm.com/)
