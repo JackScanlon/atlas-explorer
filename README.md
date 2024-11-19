@@ -129,7 +129,7 @@ $ npm run preview
     - [x] Impl. version component
     - [x] Impl. hover effect for button(s)?
 
-### 4.2. First Meeting Plan
+### 4.2. First Meeting & Plan
 
 > [!TIP]
 > - Implementation was discussed & reviewed on 11th November 2024
@@ -254,13 +254,17 @@ $ npm run preview
 
 7. [x] Add axes labels, _e.g._ `(A: 0, F: 0)` _etc_
 
-### 4.4. Thoughts & the future
+### 4.4. Thoughts, issues & the future
 
-1. Possible additions during future development
+1. Consider reimplmenting points:
+    - Mac devices clamps `GL_POINT` size much more than other platforms so points look many times smaller; attenuation is much more pronounced when the viewport is close to the subject - see reference @ [here](https://webglreport.com/?v=2)
+    - Will probably need to render the points to a quad before applying the shader
+
+2. Possible additions during future development
     - Impl. post-process outline for selected objects?
     - Depth of Field for nodes instead of fog? Or maybe just custom fog / blur built into shaders? Unsure
 
-2. Node graph, attempt was made to allow user(s) to view connections by organ / some other categorical data (similar to force directed graph)
+3. Node graph, attempt was made to allow user(s) to view connections by organ / some other categorical data (similar to force directed graph)
     - Issue:
         - Examined the feasibility of using organ targets & other categorical tags to build a connectivity graph;
         - Unfortunately there are far too many connections and they're mostly clustered within their own speciality

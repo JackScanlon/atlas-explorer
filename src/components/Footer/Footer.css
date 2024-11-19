@@ -7,6 +7,7 @@
   width: 100%;
   max-width: 100%;
   height: fit-content;
+  height: -webkit-fit-content;
   max-height: 75px;
   padding: 0rem 1rem;
   margin: 0px;
