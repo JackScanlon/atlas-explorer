@@ -232,7 +232,7 @@ $ npm run preview
     | 'Age'                          | 'Median age at first record'        |
     | 'Standardised Mortality Ratio' | 'Excess Mortality at one year'      |
     | 'Visit Disease Atlas'          | 'View features in Atlas for Health' |
-    | 'View releated Phecodes'       | 'View releated diseases by Organ'   |
+    | 'View related Phecodes'        | 'View related diseases by Organ'    |
 
 2. [x] Card changes
     - [x] Reorder Speciality/Organ/Category at top of card
