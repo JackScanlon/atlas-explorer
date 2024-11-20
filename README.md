@@ -129,7 +129,7 @@ $ npm run preview
     - [x] Impl. version component
     - [x] Impl. hover effect for button(s)?
 
-### 4.2. First Meeting Plan
+### 4.2. First Meeting & Plan
 
 > [!TIP]
 > - Implementation was discussed & reviewed on 11th November 2024
@@ -231,7 +231,7 @@ $ npm run preview
     | 'Age'                          | 'Median age at first record'        |
     | 'Standardised Mortality Ratio' | 'Excess Mortality at one year'      |
     | 'Visit Disease Atlas'          | 'View features in Atlas for Health' |
-    | 'View Released Phecodes'       | 'View released diseases by Organ'   |
+    | 'View releated Phecodes'       | 'View releated diseases by Organ'   |
 
 2. [x] Card changes
     - [x] Reorder Speciality/Organ/Category at top of card
@@ -242,7 +242,7 @@ $ npm run preview
         - [x] Alphabetical sort relationships
         - [x] Hide current Phecode in relationship panel
 
-3. [x] Make relationship filter more obviou by adding feature popover?
+3. [x] Make relationship filter more obvious by adding feature popover?
 
 4. [x] Interaction improvements
     - [x] Fix pointer events on app header
@@ -254,7 +254,17 @@ $ npm run preview
 
 7. [x] Add axes labels, _e.g._ `(A: 0, F: 0)` _etc_
 
-### 4.4. Thoughts & the future
+### 4.4. Fixes
+
+1. [x] `gl_points` max size varies across implementations, e.g. reference @ [here](https://webglreport.com/?v=2)
+    - [x] Reimplement points to use instanced plane geometry instead of `gl_points`
+    - [x] Raycasting for instanced geom
+
+2. [ ] Performance improvements
+    - [ ] Frustum culling is disabled for the new `InstancedPoints` class until I implement frustum culling for instanced geom
+    - [ ] Impl. Octree / BVH for instanced plane(s) instead of current naive method of iterating through each point - doesn't scale well
+
+### 4.5. Thoughts, issues & the future
 
 1. Possible additions during future development
     - Impl. post-process outline for selected objects?

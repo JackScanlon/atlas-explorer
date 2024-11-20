@@ -1,5 +1,7 @@
 import * as Three from 'three'
 
+import InstancedPoints from './instancedPoints'
+
 import {
   IAtlasData, AtlasRecord, AtlasObject,
   AlLoadedCallback, AlProgressCallback,
@@ -16,7 +18,7 @@ import {
 } from '../common/utils'
 
 /**
- * AtlasData
+ * AtlasPlane
  * @desc An object describing the parsed resultset from the Atlas JSON resource
  */
 class AtlasData implements IAtlasData {
@@ -34,8 +36,8 @@ class AtlasData implements IAtlasData {
 
   public constructor(
     public records   : AtlasRecord[] = [],
-    public vertices  : number[]      = [],
     public scaling   : number[]      = [],
+    public vertices  : number[]      = [],
     public reference : number[]      = [],
     public colorMap  : number[]      = []
   ) { }
@@ -74,8 +76,8 @@ class AtlasData implements IAtlasData {
 
   public ResizeToFit(recordLen: number): AtlasData {
     this.records = Array(recordLen);
-    this.vertices = Array(recordLen*3).fill(0);
     this.scaling = Array(recordLen).fill(0);
+    this.vertices = Array(recordLen*3).fill(0);
     this.reference = Array(recordLen).fill(0);
 
     return this;
@@ -136,16 +138,13 @@ class AtlasData implements IAtlasData {
 
     const vertices = Float32Array.from(this.vertices),
            scaling = Float32Array.from(this.scaling),
-              data =  Uint32Array.from(this.reference);
+              data = Uint32Array.from(this.reference);
 
     const material = new Three.ShaderMaterial(opts.ShaderProps);
-    const geometry = new Three.BufferGeometry();
-    geometry.setAttribute('position', new Three.BufferAttribute(vertices, 3));
-    geometry.setAttribute(   'scale', new Three.BufferAttribute( scaling, 1));
-    geometry.setAttribute(    'data', new Three.BufferAttribute(    data, 1));
-
-    const object = new Three.Points(geometry, material);
+    const object = new InstancedPoints(vertices, scaling, data, material);
+    object.frustumCulled = false;
     object.position.setY(-this.yAxisScale.Min);
+
     return {
       // Attr
       Data: data,
@@ -154,11 +153,11 @@ class AtlasData implements IAtlasData {
       // Geom
       Object: object,
       Material: material,
-      Geometry: geometry,
+      Geometry: object.geometry,
       // Disposable
       dispose: (): void => {
         object.removeFromParent();
-        geometry.dispose();
+        object.geometry.dispose();
         material.dispose();
       },
     };

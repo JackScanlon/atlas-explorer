@@ -113,7 +113,7 @@ export namespace Workspace {
       'OTORHINOLARYNGOLOGY': '#374396',
       'PSYCHIATRY': '#E5CF8F',
       'RESPIRATORY': '#DB5711',
-      'RHEUMATOLOGY': '#2B1F4E',
+      'RHEUMATOLOGY': '#493585',
       'STROKE MEDICINE': '#6C56BC',
       'UROLOGY': '#628A15',
       'VASCULAR SURGERY': '#A00A44',
@@ -136,7 +136,7 @@ export namespace Workspace {
       'OBSTETRICS': '#5B55F2',
       'TRAUMA AND ORTHOPAEDIC SURGERY': '#6FE0DD',
       'PLASTIC SURGERY': '#42EEE9',
-      'MULTIPLE': '#E1EE84',
+      'MULTIPLE': '#84ee91',
     },
 
     // Desired step(s) for each axes
@@ -171,6 +171,6 @@ export namespace Workspace {
     },
 
     // SMR scale factor(s)
-    MortalityBaseSize = 4,
-    MortalityScaleSize = 15;
+    MortalityBaseSize = 3,
+    MortalityScaleSize = 10;
 };

@@ -1,5 +1,6 @@
 import * as Three from 'three'
 import { Setter } from 'solid-js'
+import InstancedPoints from './objects/instancedPoints';
 
 // Handler specifying a disposable hook
 export type DisposableItem = () => void;
@@ -107,9 +108,9 @@ export type AtlasGeom = {
   Vertices: Float32Array, // See ref @ https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Float32Array
 
   /* Three.JS Geom out */
-  Object: Three.Points<Three.BufferGeometry, Three.ShaderMaterial>, // See ref @ https://threejs.org/docs/#api/en/objects/Points
-  Material: Three.ShaderMaterial,                                   // See ref @ https://threejs.org/docs/?q=ShaderMa#api/en/materials/ShaderMaterial
-  Geometry: Three.BufferGeometry,                                   // See ref @ https://threejs.org/docs/#api/en/core/BufferGeometry
+  Object: InstancedPoints, // See ref @ https://threejs.org/docs/?q=mesh#api/en/objects/Mesh
+  Material: Three.ShaderMaterial,                                             // See ref @ https://threejs.org/docs/?q=ShaderMa#api/en/materials/ShaderMaterial
+  Geometry: Three.BufferGeometry,                                    // See ref @ https://threejs.org/docs/#api/en/core/InstancedBufferGeometry
 
   /* Disposable */
   dispose: () => void;
@@ -119,11 +120,11 @@ export type AtlasGeom = {
 export interface IAtlasData {
   // Member(s)
   records: AtlasRecord[],
-  vertices: number[],
   scaling: number[],
+  vertices: number[],
+  colorMap: number[],
   reference: number[],
   boundingBox: { min: Three.Vector3, max: Three.Vector3, origin: Three.Vector3 },
-  colorMap: number[],
 
   // Method(s)
   Instantiate: (opts: AtlasBuildOptions) => AtlasGeom;

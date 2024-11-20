@@ -8,11 +8,12 @@ import ViewportService from './services/ViewportService'
 import AtlasAxes from './objects/axes'
 import CameraController from './controllers/CameraController'
 
-import PointFragShader from '@/shaders/point/point.frag?raw'
-import PointVertShader from '@/shaders/point/point.vert?raw'
+import NodeVertShader from '@/shaders/node/node.vert?raw'
+import NodeFragShader from '@/shaders/node/node.frag?raw'
 
 import CancellablePromise from './common/cancellablePromise'
 
+import { AxisObject } from './objects/axes/types'
 import { Workspace, World } from './constants'
 import { AtlasLoader, AtlasData } from './objects/loader'
 import {
@@ -27,7 +28,6 @@ import * as Tweener from 'three/examples/jsm/libs/tween.module.js'
 import * as Css2d from 'three/examples/jsm/renderers/CSS2DRenderer.js';
 
 import { Setter } from 'solid-js'
-import { AxisObject } from './objects/axes/types'
 
 /**
  * Explorer
@@ -246,19 +246,19 @@ export default class Explorer {
 
     if (target) {
       if (!point) {
-        const verts = this.model?.Vertices;
-        if (!verts) {
+        const points = this.model?.Vertices;
+        if (!points) {
           return;
         }
 
         const index = target.Id*3;
-        if (index >= verts.length) {
+        if (index >= points.length) {
           return;
         }
 
-        const vx = verts?.[index + 0],
-              vy = verts?.[index + 1],
-              vz = verts?.[index + 2];
+        const vx = points?.[index + 0],
+              vy = points?.[index + 1],
+              vz = points?.[index + 2];
         if (typeof vx !== 'number' || typeof vy !== 'number' || typeof vz !== 'number') {
           return;
         }
@@ -450,9 +450,13 @@ export default class Explorer {
             defines: {
               MAP_COUNT: data.colorMap.length,
             },
-            vertexShader: PointVertShader,
-            fragmentShader: PointFragShader,
+            vertexShader: NodeVertShader,
+            fragmentShader: NodeFragShader,
             wireframe: false,
+            depthTest: true,
+            depthWrite: true,
+            // glslVersion: Three.GLSL1,
+            side: Three.DoubleSide,
           }
         });
 
@@ -651,14 +655,14 @@ export default class Explorer {
         return undefined;
       }
 
-      const vertIndx = index*3;
-      const vertices = this.model.Vertices;
-      const vIndices = [ vertIndx + 0, vertIndx + 1, vertIndx + 2 ];
+      const pIndex = index*3;
+      const points = this.model.Vertices;
+      const vIndices = [ pIndex + 0, pIndex + 1, pIndex + 2 ];
 
       const hitPosition = point.clone().set(
-        vertices[vIndices[0]],
-        vertices[vIndices[1]],
-        vertices[vIndices[2]]
+        points[vIndices[0]],
+        points[vIndices[1]],
+        points[vIndices[2]]
       );
       this.model.Object.localToWorld(hitPosition);
 
@@ -693,7 +697,7 @@ export default class Explorer {
       for (let i = 0; i < intersects.length; ++i) {
         const { object, index, point } = intersects[i];
         switch (object.type) {
-          case 'Points': {
+          case 'InstancedPoints': {
             selectionTarget = this.getTooltipTarget(index, point);
             if (selectionTarget) {
               if (!this.selection || this.selection.Index !== selectionTarget.Index) {
