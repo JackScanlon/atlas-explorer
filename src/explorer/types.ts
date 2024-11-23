@@ -103,9 +103,8 @@ export type AtlasBuildOptions = {
 //   - See attached URLs
 export type AtlasGeom = {
   /* Three.JS Attr out */
-  Data: Uint32Array,      // See ref @ https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint32Array
-  Scaling: Float32Array,  // See ref @ https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Float32Array
-  Vertices: Float32Array, // See ref @ https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Float32Array
+  Data: Uint32Array,    // See ref @ https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint32Array
+  Points: Float32Array, // See ref @ https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Float32Array
 
   /* Three.JS Geom out */
   Object: InstancedPoints, // See ref @ https://threejs.org/docs/?q=mesh#api/en/objects/Mesh
@@ -119,12 +118,11 @@ export type AtlasGeom = {
 // Interface for the `AtlasData` result set class
 export interface IAtlasData {
   // Member(s)
+  points: number[],
   records: AtlasRecord[],
-  scaling: number[],
-  vertices: number[],
   colorMap: number[],
   reference: number[],
-  boundingBox: { min: Three.Vector3, max: Three.Vector3, origin: Three.Vector3 },
+  boundingBox: Three.Box3,
 
   // Method(s)
   Instantiate: (opts: AtlasBuildOptions) => AtlasGeom;

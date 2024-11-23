@@ -7,7 +7,7 @@ import * as QuatUtils from '../../common/quatUtils'
 import AxisLine from './axisLine';
 import RadialAxis from './radialAxis';
 
-import { World } from '@/explorer/constants';
+import { Const } from '@/explorer/constants';
 import { AtlasAxesOpts, AxisHoverTarget, AxisObject } from './types';
 import { AxisToggleTarget } from '@/explorer/types';
 import { AxisHelperDefaults, RadialAxisDefaults, VerticalAxisDefaults } from './constants';
@@ -124,15 +124,15 @@ export default class AtlasAxes extends Three.Group {
     const vertices = line.lineVertices;
 
     // Get look vector of camera
-    const lookVector = QuatUtils.safeQuatMultVec3(camera.quaternion, World.LookVector)
+    const lookVector = QuatUtils.safeQuatMultVec3(camera.quaternion, Const.LookVector)
     const direction = lookVector.clone().multiply(XZ_VECTOR);
 
     // Find plane intersect underneath us (imaginary plane)
     const result = Utils.rayPlaneIntersect(
       camera.position,
-      World.UpVector.clone().negate().add(direction.clone().multiplyScalar(0.5)),
+      Const.UpVector.clone().negate().add(direction.clone().multiplyScalar(0.5)),
       origin,
-      World.UpVector
+      Const.UpVector
     );
 
     // Compute offset target
@@ -144,7 +144,7 @@ export default class AtlasAxes extends Three.Group {
     const vec = target.clone().sub(origin);
     const dot = vec.dot(VecUtils.tryNormaliseVector(origin.clone().sub(camera.position)));
     if (dot >= 0) {
-      target.add(QuatUtils.safeQuatMultVec3(camera.quaternion, World.RightVector).multiply(XZ_VECTOR).multiplyScalar(radius));
+      target.add(QuatUtils.safeQuatMultVec3(camera.quaternion, Const.RightVector).multiply(XZ_VECTOR).multiplyScalar(radius));
     }
 
     direction.copy(target)
@@ -187,11 +187,11 @@ export default class AtlasAxes extends Three.Group {
 
     let value: number = range;
     if (target) {
-      const point = VecUtils.closestPointOnRay(target, World.ZeroVector, World.UpVector.clone(), 0, size);
+      const point = VecUtils.closestPointOnRay(target, Const.ZeroVector, Const.UpVector.clone(), 0, size);
       value = (point.Distance/size)*range;
       label.position.copy(point.Position);
     } else {
-      label.position.copy(World.UpVector.clone().multiplyScalar(size));
+      label.position.copy(Const.UpVector.clone().multiplyScalar(size));
     }
 
     label.visible = this.showLabels && value > 2.0;
@@ -314,7 +314,7 @@ export default class AtlasAxes extends Three.Group {
     radialLabelDiv.style.backgroundColor = 'transparent';
 
     const radialLabel = new Css2d.CSS2DObject(radialLabelDiv);
-    radialLabel.position.copy(World.RightVector.clone().multiplyScalar(radialSize).add(this.origin));
+    radialLabel.position.copy(Const.RightVector.clone().multiplyScalar(radialSize).add(this.origin));
     radialLabel.center.set(-0.15, -0.15);
 
     this.elements.radialLabel = radialLabel;
@@ -325,7 +325,7 @@ export default class AtlasAxes extends Three.Group {
     verticalLabelDiv.style.backgroundColor = 'transparent';
 
     const verticalLabel = new Css2d.CSS2DObject(verticalLabelDiv);
-    verticalLabel.position.copy(World.UpVector.clone().multiplyScalar(verticalSize).add(this.origin));
+    verticalLabel.position.copy(Const.UpVector.clone().multiplyScalar(verticalSize).add(this.origin));
     verticalLabel.center.set(-0.15, 0.15);
 
     this.elements.verticalLabel = verticalLabel;

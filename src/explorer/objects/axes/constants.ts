@@ -1,6 +1,6 @@
 import * as Three from 'three'
 
-import { World } from '@/explorer/constants';
+import { Const } from '@/explorer/constants';
 import { RadialAxisOpts, AxisHelperOpts, VerticalAxisOpts, AxisLineOpts } from './types'
 
 /* Radial Axis */
@@ -8,7 +8,7 @@ import { RadialAxisOpts, AxisHelperOpts, VerticalAxisOpts, AxisLineOpts } from '
 export const RadialAxisColor = new Three.Color(0.5, 0.5, 0.5);
 
 // Default radial axis orientation (plane face upwards)
-export const RadialAxisOrientation = new Three.Quaternion().setFromAxisAngle(World.RightVector, -Math.PI*0.5);
+export const RadialAxisOrientation = new Three.Quaternion().setFromAxisAngle(Const.RightVector, -Const.PI_HALF);
 
 // Default opts to construct radial axis
 export const RadialAxisDefaults: Partial<RadialAxisOpts> = {

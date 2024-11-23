@@ -1,11 +1,12 @@
 import * as Three from 'three'
-import { Workspace } from '../constants'
+
+import { Const, Workspace } from '../constants'
+import { isCSSRule } from '@/utils'
 import {
   AlAxisScale, AlScaleFn, AlScaleTarget,
   AtlasDescriptor,
   AtlasPacked, AtlasSpeciality, ExplorerElementProps
 } from '../types'
-import { isCSSRule } from '@/utils';
 
 const CAMEL_CASE_PATTERN = /(?<=[a-z\d])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])/g;
 
@@ -126,10 +127,10 @@ export const rayPlaneIntersect = (
  * @desc tests whether `a` is approximately `b` within some threshold described by `eps`
  * @param {number} a   some number
  * @param {number} b   some number
- * @param {number} eps epsilon - defaults to 1e-6
+ * @param {number} eps epsilon - defaults to 1e-6 (see `Const.EPS`)
  * @returns {number} a boolean reflecting its approximate equality
  */
-export const approximately = (a: number, b: number, eps: number = 1e-6): boolean => {
+export const approximately = (a: number, b: number, eps: number = Const.EPS): boolean => {
   return a === b || (Math.abs(a - b) <= (Math.abs(a) + 1)*eps)
 }
 
@@ -202,7 +203,7 @@ export const isFnType = (value?: unknown): boolean => !!(value && value.construc
  *
  * @return {AlScaleFn|null} the scaler assoc. with this prop (if any)
  */
-export const getScalerFn = (prop?: AlScaleTarget|AlScaleFn): AlScaleFn|null => {
+export const getScalerFn = (prop?: AlScaleTarget | AlScaleFn): AlScaleFn | null => {
   if (!prop) {
     return null;
   }

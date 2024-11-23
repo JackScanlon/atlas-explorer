@@ -5,7 +5,7 @@ uniform highp float uOpacity;
 
 varying highp vec2  vUv;
 
-highp float line(highp vec2 uv, highp float lineWidth) {
+highp float line(in highp vec2 uv, in highp float lineWidth) {
   return smoothstep(lineWidth, lineWidth*0.8, abs(uv.x - lineWidth));
 }
 
@@ -15,6 +15,7 @@ void main() {
   highp float shape = line(uv, uWidth);
   gl_FragColor = vec4(uColor.xyz, uOpacity)*shape;
 
+  // Incl. atlas tone mapping & color spaces; see `../../explorer/constants.ts`
   #include <tonemapping_fragment>
   #include <colorspace_fragment>
 }

@@ -14,7 +14,7 @@ import NodeFragShader from '@/shaders/node/node.frag?raw'
 import CancellablePromise from './common/cancellablePromise'
 
 import { AxisObject } from './objects/axes/types'
-import { Workspace, World } from './constants'
+import { Const, World, Workspace } from './constants'
 import { AtlasLoader, AtlasData } from './objects/loader'
 import {
   AtlasGeom, AtlasRecord, AtlasSelection,
@@ -246,12 +246,12 @@ export default class Explorer {
 
     if (target) {
       if (!point) {
-        const points = this.model?.Vertices;
+        const points = this.model?.Points;
         if (!points) {
           return;
         }
 
-        const index = target.Id*3;
+        const index = target.Id*4;
         if (index >= points.length) {
           return;
         }
@@ -296,15 +296,21 @@ export default class Explorer {
 
   public ResetCamera(): Explorer {
     const offset = new Three.Vector3(0, 0, 0);
-    if (this.dataset) {
-      offset.add(this.dataset.boundingBox.max)
-        .sub(this.dataset.boundingBox.min);
+    if (this.dataset && this.model) {
+      if (!this.model.Object.boundingBox) {
+        this.model.Object.computeBoundingBox();
+      }
+
+      const bbox = this.model.Object.boundingBox!;
+      const origin = bbox.getCenter(new Three.Vector3());
+      offset.add(bbox.max)
+        .sub(bbox.min);
 
       offset.set(Math.abs(offset.x), Math.abs(offset.y), Math.abs(offset.z))
         .multiplyScalar(0.5)
-        .add(this.dataset.boundingBox.origin);
+        .add(origin);
 
-      const quat = QuatUtils.quatLookAt(offset, this.dataset.boundingBox.origin);
+      const quat = QuatUtils.quatLookAt(offset, origin);
       this.camera.applyQuaternion(quat);
       this.camera.position.set(offset.x, offset.y, offset.z);
       this.cameraController.target = new Three.Vector3(0, this.dataset.yAxisScale.Min, 0);
@@ -392,8 +398,8 @@ export default class Explorer {
     }
 
     this.raycaster = new Three.Raycaster();
-    this.raycaster.params.Line.threshold = 0.5;
-    this.raycaster.params.Points.threshold = 1;
+    this.raycaster.params.Line.threshold = 0.10;
+    this.raycaster.params.Mesh.threshold = 0.05;
 
     // @ts-ignore
     this.onViewportResize(...Object.values(this.viewport.size));
@@ -535,8 +541,8 @@ export default class Explorer {
           this.ready = true;
           this.cameraController.enabled = true;
 
-          axes.scale.copy(World.OneVector);
-          points.scale.copy(World.OneVector);
+          axes.scale.copy(Const.OneVector);
+          points.scale.copy(Const.OneVector);
           return;
         }
 
@@ -655,8 +661,8 @@ export default class Explorer {
         return undefined;
       }
 
-      const pIndex = index*3;
-      const points = this.model.Vertices;
+      const pIndex = index*4;
+      const points = this.model.Points;
       const vIndices = [ pIndex + 0, pIndex + 1, pIndex + 2 ];
 
       const hitPosition = point.clone().set(

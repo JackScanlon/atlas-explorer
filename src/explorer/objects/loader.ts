@@ -10,7 +10,7 @@ import {
   AlScalingOpt, AlAxisScale, AlDataRange
 } from '../types'
 
-import { World, Workspace } from '../constants'
+import { Const, World, Workspace } from '../constants'
 import { rotatePointAroundOrigin } from '../common/vecUtils'
 import {
   toFixedFloat, packAtlasColRef,
@@ -22,6 +22,7 @@ import {
  * @desc An object describing the parsed resultset from the Atlas JSON resource
  */
 class AtlasData implements IAtlasData {
+  private bbox?: Three.Box3;
   private minBounds: Three.Vector3 = new Three.Vector3( Infinity,  Infinity,  Infinity);
   private maxBounds: Three.Vector3 = new Three.Vector3(-Infinity, -Infinity, -Infinity);
 
@@ -35,32 +36,31 @@ class AtlasData implements IAtlasData {
   public relationships!: Record<string, AtlasTarget>;
 
   public constructor(
+    public points    : number[]      = [],
     public records   : AtlasRecord[] = [],
-    public scaling   : number[]      = [],
-    public vertices  : number[]      = [],
     public reference : number[]      = [],
     public colorMap  : number[]      = []
   ) { }
 
-  public get boundingBox(): { min: Three.Vector3, max: Three.Vector3, origin: Three.Vector3 } {
-    return {
-      min: this.minBounds.clone(),
-      max: this.maxBounds.clone(),
-      origin: this.maxBounds.clone().add(this.minBounds).multiplyScalar(0.5)
-    };
+  public get boundingBox(): Three.Box3 {
+    if (!this.bbox) {
+      this.bbox = new Three.Box3(this.minBounds.clone(), this.maxBounds.clone())
+    }
+
+    return this.bbox!;
   }
 
   public AddRecord(record: AtlasRecord, vert: Three.Vector3, scale: number): AtlasData {
     const { Id, SpecialityId } = record;
 
-    const index = Id*3;
+    const index = Id*4;
     this.records[Id] = record;
-    this.scaling[Id] = scale;
     this.reference[Id] = packAtlasObject(Id, SpecialityId, false);
 
-    this.vertices[index + 0] = vert.x;
-    this.vertices[index + 1] = vert.y;
-    this.vertices[index + 2] = vert.z;
+    this.points[index + 0] = vert.x;
+    this.points[index + 1] = vert.y;
+    this.points[index + 2] = vert.z;
+    this.points[index + 3] = scale;
 
     this.minBounds.min(vert);
     this.maxBounds.max(vert);
@@ -75,9 +75,8 @@ class AtlasData implements IAtlasData {
   }
 
   public ResizeToFit(recordLen: number): AtlasData {
+    this.points = Array(recordLen*4).fill(0);
     this.records = Array(recordLen);
-    this.scaling = Array(recordLen).fill(0);
-    this.vertices = Array(recordLen*3).fill(0);
     this.reference = Array(recordLen).fill(0);
 
     return this;
@@ -136,20 +135,19 @@ class AtlasData implements IAtlasData {
       opts = { };
     }
 
-    const vertices = Float32Array.from(this.vertices),
-           scaling = Float32Array.from(this.scaling),
-              data = Uint32Array.from(this.reference);
+    const points = Float32Array.from(this.points),
+            data = Uint32Array.from(this.reference);
 
     const material = new Three.ShaderMaterial(opts.ShaderProps);
-    const object = new InstancedPoints(vertices, scaling, data, material);
-    object.frustumCulled = false;
+    const object = new InstancedPoints(points, data, material);
     object.position.setY(-this.yAxisScale.Min);
+    object.computeBoundingSphere();
+    object.frustumCulled = true;
 
     return {
       // Attr
       Data: data,
-      Scaling: scaling,
-      Vertices: vertices,
+      Points: points,
       // Geom
       Object: object,
       Material: material,
@@ -355,7 +353,7 @@ class AtlasLoader extends Three.Loader {
         };
 
         vert = new Three.Vector3(x, y, 0);
-        rotatePointAroundOrigin(vert, World.ZeroVector, startRotation + thetaIncrement*j*invRecordLen);
+        rotatePointAroundOrigin(vert, Const.ZeroVector, startRotation + thetaIncrement*j*invRecordLen);
 
         item.x = x;
         item.y = y;

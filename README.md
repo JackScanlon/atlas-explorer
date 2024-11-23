@@ -130,7 +130,6 @@ $ npm run preview
     - [x] Impl. hover effect for button(s)?
 
 ### 4.2. First Meeting & Plan
-### 4.2. First Meeting & Plan
 
 > [!TIP]
 > - Implementation was discussed & reviewed on 11th November 2024
@@ -255,15 +254,28 @@ $ npm run preview
 
 7. [x] Add axes labels, _e.g._ `(A: 0, F: 0)` _etc_
 
-### 4.4. Fixes
+### 4.4. Improvements & Fixes
 
 1. [x] `gl_points` max size varies across implementations, e.g. reference @ [here](https://webglreport.com/?v=2)
     - [x] Reimplement points to use instanced plane geometry instead of `gl_points`
-    - [x] Raycasting for instanced geom
+    - [x] Initial raycasting for instanced geometry
 
-2. [ ] Performance improvements
-    - [ ] Frustum culling is disabled for the new `InstancedPoints` class until I implement frustum culling for instanced geom
-    - [ ] Impl. Octree / BVH for instanced plane(s) instead of current naive method of iterating through each point - doesn't scale well
+2. [x] Use interleaved `offset` & `scale` buffer to improve data access on instanced geometry
+
+3. [x] Frustum culling of instanced geometry
+    > [!NOTE]
+    > - BVH frustum culling is likely over kill and would require a dynamic buffer; instead we'll implement a basic sphere intersection test
+
+    - [x] Compute world-space bounding box & sphere
+    - [x] Implement basic bounding sphere frustum culling
+
+4. [x] Reimplement size attenuation to emulate `gl_points` behaviour
+    - [x] Implement attenuation in vertex shader
+    - [x] Implement attenuation in `InstancedPoints` class
+
+5. [x] Project cleanup
+    - [x] Cleanup const. usage across project
+    - [x] Cleanup documentation
 
 ### 4.5. Thoughts, issues & the future
 
@@ -271,11 +283,13 @@ $ npm run preview
     - Mac devices clamps `GL_POINT` size much more than other platforms so points look many times smaller; attenuation is much more pronounced when the viewport is close to the subject - see reference @ [here](https://webglreport.com/?v=2)
     - Will probably need to render the points to a quad before applying the shader
 
-2. Possible additions during future development
+2. Consider object partitioning, _e.g._ bounding volume hierarchy, for non-naive instanced point raycasting in `InstancedPoints`
+
+3. Possible additions during future development
     - Impl. post-process outline for selected objects?
     - Depth of Field for nodes instead of fog? Or maybe just custom fog / blur built into shaders? Unsure
 
-3. Node graph, attempt was made to allow user(s) to view connections by organ / some other categorical data (similar to force directed graph)
+4. Node graph, attempt was made to allow user(s) to view connections by organ / some other categorical data (similar to force directed graph)
     - Issue:
         - Examined the feasibility of using organ targets & other categorical tags to build a connectivity graph;
         - Unfortunately there are far too many connections and they're mostly clustered within their own speciality

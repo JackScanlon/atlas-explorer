@@ -5,7 +5,9 @@ varying  lowp float vSelected;
 varying  lowp float vVisible;
 varying  lowp float vFocused;
 
-const highp vec3 lum = vec3(0.2126, 0.7152, 0.0722);
+const highp vec3  lum = vec3(0.2126, 0.7152, 0.0722);
+const lowp  float borderThickness = 0.3;
+
 highp vec4 selectColor(in highp vec3 col, in highp float hueShift, in highp float satShift) {
   highp vec3 p = vec3(0.55735)*dot(vec3(0.55735), col);
   highp vec3 u = col - p;
@@ -28,10 +30,7 @@ void main() {
     discard;
   }
 
-  // Const
-  const lowp float borderThickness = 0.3;
-
-  // Lighting
+  // Fake lighting
   lowp float radius = dot(cxy, cxy);
 
   const lowp vec3 ambient = vec3(1.0, 1.0, 1.0)*0.75;
@@ -67,6 +66,7 @@ void main() {
 
   gl_FragColor = comp;
 
+  // Incl. atlas tone mapping & color spaces; see `../../explorer/constants.ts`
   #include <tonemapping_fragment>
   #include <colorspace_fragment>
 }

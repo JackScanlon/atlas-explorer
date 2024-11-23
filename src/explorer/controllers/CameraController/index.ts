@@ -13,16 +13,12 @@
 
 import * as Three from 'three'
 
+import { Const, World } from '@/explorer/constants'
 import { BaseControls, CameraState } from './constants'
 import { CameraTouchControls, CameraMouseControls, CameraControlOpts } from './types'
-import { World } from '@/explorer/constants';
 
 import * as Tweener from 'three/examples/jsm/libs/tween.module.js'
 import CancellablePromise from '@/explorer/common/cancellablePromise';
-
-const PI = Math.PI;
-const PI2 = PI*2;
-const EPS = 1e-6;
 
 /**
  * CameraController
@@ -48,7 +44,7 @@ export default class CameraController {
   public maxTargetRadius: number = Infinity;
 
   public minPolarAngle: number = 0;
-  public maxPolarAngle: number = PI;
+  public maxPolarAngle: number = Const.PI;
 
   public minAzimuthAngle: number = -Infinity;
   public maxAzimuthAngle: number =  Infinity;
@@ -257,9 +253,9 @@ export default class CameraController {
       forceChanged
       || this.insideTween
       || zoomChanged
-      || this.lastTranslation.distanceToSquared(this.object.position) > EPS
-      || 8 * (1 - this.lastOrientation.dot(this.object.quaternion)) > EPS
-      || this.lastTargetOrigin.distanceToSquared(this.target) > EPS
+      || this.lastTranslation.distanceToSquared(this.object.position) > Const.EPS
+      || 8 * (1 - this.lastOrientation.dot(this.object.quaternion)) > Const.EPS
+      || this.lastTargetOrigin.distanceToSquared(this.target) > Const.EPS
     );
 
 		if (shouldUpdate) {
@@ -282,7 +278,7 @@ export default class CameraController {
   }
 
   private initialise(): void {
-    this.orbitQuat = new Three.Quaternion().setFromUnitVectors(this.object.up, World.UpVector);
+    this.orbitQuat = new Three.Quaternion().setFromUnitVectors(this.object.up, Const.UpVector);
     this.orbitQuatInverse = this.orbitQuat.clone().invert();
 
     this.connect();
@@ -388,16 +384,16 @@ export default class CameraController {
 		let min = this.minAzimuthAngle;
 		let max = this.maxAzimuthAngle;
 		if (isFinite(min) && isFinite(max)) {
-			if (min < - PI) {
-        min += PI2;
-      } else if (min > PI) {
-        min -= PI2;
+			if (min < - Const.PI) {
+        min += Const.TAU;
+      } else if (min > Const.PI) {
+        min -= Const.TAU;
       }
 
-			if (max < - PI) {
-        max += PI2;
-      } else if (max > PI) {
-        max -= PI2;
+			if (max < - Const.PI) {
+        max += Const.TAU;
+      } else if (max > Const.PI) {
+        max -= Const.TAU;
       }
 
 			if (min <= max) {
@@ -456,7 +452,7 @@ export default class CameraController {
     vec.copy(position).sub(this.target);
 
     let targetDistance = vec.length();
-    targetDistance *= Math.tan((this.object.fov / 2) * PI / 180.0);
+    targetDistance *= Math.tan((this.object.fov / 2) * Const.PI / 180.0);
 
     this.panLeft(2 * deltaX * targetDistance / element.clientHeight, this.object.matrix);
     this.panUp(2 * deltaY * targetDistance / element.clientHeight, this.object.matrix);
@@ -700,8 +696,8 @@ export default class CameraController {
     this.rotateDelta.subVectors(this.rotateEnd, this.rotateStart).multiplyScalar(this.rotateSpeed);
 
     const element = this.domElement;
-    this.rotateLeft(PI2 * this.rotateDelta.x / element.clientHeight);
-    this.rotateUp(PI2 * this.rotateDelta.y / element.clientHeight);
+    this.rotateLeft(Const.TAU * this.rotateDelta.x / element.clientHeight);
+    this.rotateUp(Const.TAU * this.rotateDelta.y / element.clientHeight);
 
     this.rotateStart.copy(this.rotateEnd);
     this.Update();
@@ -930,8 +926,8 @@ export default class CameraController {
     this.rotateDelta.subVectors(this.rotateEnd, this.rotateStart).multiplyScalar(this.rotateSpeed);
 
     const element = this.domElement;
-    this.rotateLeft(PI2 * this.rotateDelta.x / element.clientHeight);
-    this.rotateUp(PI2 * this.rotateDelta.y / element.clientHeight);
+    this.rotateLeft(Const.TAU * this.rotateDelta.x / element.clientHeight);
+    this.rotateUp(Const.TAU * this.rotateDelta.y / element.clientHeight);
     this.rotateStart.copy(this.rotateEnd);
   }
 

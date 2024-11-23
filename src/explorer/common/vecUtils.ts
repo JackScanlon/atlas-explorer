@@ -1,13 +1,12 @@
 import * as Three from 'three'
 
-import { World } from '../constants'
+import { Const } from '../constants'
 import { ViewportSize } from '../types'
 import { approximately, clampValue } from './utils'
 
 const PI = Math.PI;
 const DEG2RAD = PI * 2 / 360;
 const RAD2DEG = 1 / DEG2RAD;
-const UP_VECTOR = new Three.Vector3(0, 1, 0);
 
 type VecType = Three.Vector3 | Three.Vector2;
 
@@ -32,7 +31,7 @@ export const tryNormaliseVector = <T extends VecType>(vec: T, defaultValue?: T |
 
   if (approximately(len, 1)) {
     return vec;
-  } else if (len > 1e-4) {
+  } else if (len > Const.EPS) {
     vec.normalize();
   } else {
     if (isVec2) {
@@ -98,10 +97,10 @@ export const closestPointOnRay = (
  * @returns {number} a number specifying the angle between the vectors (in radians)
  */
 export const computeAngle = (a: Three.Vector3, b: Three.Vector3, useRad: boolean = true): number => {
-  const r = useRad ? 1 : RAD2DEG;
+  const r = useRad ? 1 : Const.RAD2DEG;
 
   let d = Math.sqrt((a.x*a.x + a.y*a.y + a.z*a.z) * (b.x*b.x + b.y*b.y + b.z*b.z));
-  if (d < 1e-6) {
+  if (d < Const.EPS) {
     return 0;
   }
 
@@ -124,13 +123,13 @@ export const computeAngle = (a: Three.Vector3, b: Three.Vector3, useRad: boolean
 export const computeSignedAngle = (
   a: Three.Vector3,
   b: Three.Vector3,
-  axis: Three.Vector3 = UP_VECTOR,
+  axis: Three.Vector3 = Const.UpVector,
   useRad: boolean = true
 ): number => {
   const r = useRad ? 1 : RAD2DEG;
 
   let d = Math.sqrt((a.x*a.x + a.y*a.y + a.z*a.z) * (b.x*b.x + b.y*b.y + b.z*b.z));
-  if (d < 1e-6) {
+  if (d < Const.EPS) {
     return 0;
   }
 
@@ -163,10 +162,10 @@ export const computeSignedAngle = (
  * @returns {Vector3} the resultant `Vector3` after being rotated
  */
 export const rotatePointAroundOrigin = (
-  point  : Three.Vector3 = World.ZeroVector,
-  origin : Three.Vector3 = World.ZeroVector,
+  point  : Three.Vector3 = Const.ZeroVector,
+  origin : Three.Vector3 = Const.ZeroVector,
   theta  : number  = 0,
-  axis   : Three.Vector3 = World.UpVector
+  axis   : Three.Vector3 = Const.UpVector
 ): Three.Vector3 => {
   return point
     .sub(origin)

@@ -31,7 +31,7 @@ void main() {
     discard;
   }
 
-  // Lighting
+  // Fake lighting
   highp float radius = dot(cxy, cxy);
 
   const highp vec3 ambient = vec3(1.0, 1.0, 1.0)*0.75;
@@ -67,6 +67,7 @@ void main() {
 
   gl_FragColor = comp;
 
+  // Incl. atlas tone mapping & color spaces; see `../../explorer/constants.ts`
   #include <tonemapping_fragment>
   #include <colorspace_fragment>
 }

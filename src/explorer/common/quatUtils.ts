@@ -1,6 +1,6 @@
 import * as Three from 'three'
 
-import { World } from '../constants'
+import { Const } from '../constants'
 import { tryNormaliseVector } from './vecUtils';
 
 /**
@@ -16,7 +16,7 @@ export const safeQuatMultVec3 = (quat: Three.Quaternion, vec: Three.Vector3): Th
   let bx =  vec.x, by =  vec.y, bz =  vec.z, bw =      0;
 
   let l = ax*ax + ay*ay + az*az + aw*aw;
-  if (Math.abs(l) > 1e-6) {
+  if (Math.abs(l) > Const.EPS) {
     l = Math.sqrt(l);
 
     ax /= l;
@@ -103,7 +103,7 @@ export const componentsFromVectors = (v0: Three.Vector3, v1: Three.Vector3, v2: 
  *
  * @returns {Quaternion} the computed quaternion
  */
-export const quatLookAt = (from: Three.Vector3, to: Three.Vector3, up: Three.Vector3 = World.UpVector): Three.Quaternion => {
+export const quatLookAt = (from: Three.Vector3, to: Three.Vector3, up: Three.Vector3 = Const.UpVector): Three.Quaternion => {
   let x!: number,
       y!: number,
       z!: number,
@@ -113,21 +113,21 @@ export const quatLookAt = (from: Three.Vector3, to: Three.Vector3, up: Three.Vec
   to = to.clone();
   up = up.clone();
 
-  tryNormaliseVector(up, World.UpVector);
+  tryNormaliseVector(up, Const.UpVector);
 
   const forward = to.sub(from);
-  tryNormaliseVector(forward, World.LookVector.clone().negate());
+  tryNormaliseVector(forward, Const.LookVector.clone().negate());
 
   const right = forward.clone().cross(up);
   const length = right.lengthSq();
-  if (length > 1e-6) {
-    tryNormaliseVector(right, World.RightVector);
-    up = tryNormaliseVector(right.clone().cross(forward), World.UpVector);
+  if (length > Const.EPS) {
+    tryNormaliseVector(right, Const.RightVector);
+    up = tryNormaliseVector(right.clone().cross(forward), Const.UpVector);
 
     [x, y, z, w] = componentsFromVectors(forward.negate(), right, up);
   } else {
-    tryNormaliseVector(forward.clone().cross(World.RightVector), World.RightVector);
-    up = tryNormaliseVector(right.clone().cross(forward), World.UpVector);
+    tryNormaliseVector(forward.clone().cross(Const.RightVector), Const.RightVector);
+    up = tryNormaliseVector(right.clone().cross(forward), Const.UpVector);
 
     [x, y, z, w] = componentsFromVectors(forward.negate(), right, up);
   }

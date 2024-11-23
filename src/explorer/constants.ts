@@ -3,8 +3,28 @@ import { ExplorerOpts } from './types';
 
 type OutputColorSpace = typeof Three.SRGBColorSpace | typeof Three.LinearSRGBColorSpace;
 
-export namespace World {
+export namespace Const {
   export const
+    /* Math */
+    // Some tiny floating point value
+    EPS = 1e-6,
+
+    // Ratio of circumference & diameter of a circle, i.e. π
+    PI = Math.PI,
+
+    // Constant ref to 0.5π
+    PI_HALF = Math.PI * 0.5,
+
+    // Ratio between circumference & radius of a circle, i.e. 2π
+    TAU = Math.PI * 2,
+
+    // Constant to convert degrees to radians
+    DEG2RAD = Math.PI * 2 / 360,
+
+    // Constant to convert radians to degrees
+    RAD2DEG = 1 / (Math.PI * 2 / 360),
+
+    /* Translation */
     // Default fill vector
     OneVector = new Three.Vector3(1, 1, 1),
 
@@ -18,8 +38,11 @@ export namespace World {
     UpVector = new Three.Vector3(0, 1, 0),
 
     // Default look vector axis
-    LookVector = new Three.Vector3(0, 0, -1),
+    LookVector = new Three.Vector3(0, 0, -1);
+};
 
+export namespace World {
+  export const
     // Fog colour(s) for Dark/Light mode theme(s)
     Theme: Record<string, number> = {
       dark: 0x646464,

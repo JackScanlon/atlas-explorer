@@ -31,6 +31,7 @@ void main() {
 
   gl_FragColor = vec4(uColor.xyz, uOpacity)*shape;
 
+  // Incl. atlas tone mapping & color spaces; see `../../explorer/constants.ts`
   #include <tonemapping_fragment>
   #include <colorspace_fragment>
 }

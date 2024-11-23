@@ -58,6 +58,12 @@ void main() {
     vVisible = 1.0;
   }
 
-  highp vec2 pos = (position.xy - (center - vec2(0.5))) * grow * scale;
+  // Emulate `gl_points` size attenuation
+	vec4 mvPosition = modelViewMatrix[3];
+	vec2 mvScale = vec2(length(modelMatrix[0].xyz), length(modelMatrix[1].xyz)) * -mvPosition.z;
+  mvScale = clamp(mvScale / 300.0, 0.5, 1.0);
+
+  // Finalise
+  highp vec2 pos = (position.xy - (center - vec2(0.5))) * (grow * scale * mvScale);
   gl_Position = projectionMatrix * (modelViewMatrix * vec4(offset, 1) + vec4(pos, 0, 0));
 }
