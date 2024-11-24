@@ -20,7 +20,8 @@ import {
   AtlasGeom, AtlasRecord, AtlasSelection,
   AtlasSpeciality, AtlasTooltipTarget, AxisToggleTarget,
   DisposableItem, FilterType, InputButton, InputObject,
-  InputState, InputType, ExplorerOpts
+  InputState, InputType, ExplorerOpts,
+  AtlasViewState
 } from './types'
 
 import * as Three from 'three'
@@ -59,6 +60,7 @@ export default class Explorer {
   /* State */
   private ready: boolean = false;
   private themeColor!: number;
+  private hasUpdate: boolean = true;
 
   private pointer: Three.Vector2 = new Three.Vector2();
   private selection?: AtlasSelection;
@@ -105,7 +107,7 @@ export default class Explorer {
 
     const intersects = this.raycaster.intersectObject(this.model.Object);
     if (intersects.length > 0) {
-      const material = this.model.Object.material as Three.ShaderMaterial;
+      const material = this.model.Object.material;
       for (let i = 0; i < intersects.length; ++i) {
         const { index: hitIndex } = intersects[i];
         if (typeof hitIndex === 'undefined') {
@@ -155,6 +157,14 @@ export default class Explorer {
     return resultset;
   }
 
+  public GetViewState(): AtlasViewState {
+    if (!this.dataset) {
+      return AtlasViewState.RadialView;
+    }
+
+    return this.dataset.currentViewState;
+  }
+
   /* Setter(s) */
   public SetRoot(targets: { Root?: HTMLElement, CanvasRoot?: HTMLElement, LabelRoot?: HTMLElement }): Explorer {
     if (targets.Root) {
@@ -196,6 +206,7 @@ export default class Explorer {
       this.scene.fog.color = new Three.Color(this.themeColor);
     }
 
+    this.hasUpdate = true;
     return this;
   }
 
@@ -222,7 +233,7 @@ export default class Explorer {
       } break;
 
       case FilterType.SpecialityFilter: {
-        const material = this.model.Object.material as Three.ShaderMaterial;
+        const material = this.model.Object.material;
         const visibleMap = params[0] as Record<number, boolean>;
         for (let i = 0; i < material.uniforms.uVisible.value.length; ++i) {
           material.uniforms.uVisible.value[i] = !!visibleMap[i];
@@ -231,6 +242,20 @@ export default class Explorer {
 
       } break;
     }
+
+    this.hasUpdate = true;
+    return this;
+  }
+
+  public ToggleViewState(): Explorer {
+    if (!this.dataset) {
+      return this;
+    }
+
+    this.dataset.currentViewState = this.dataset.currentViewState === AtlasViewState.RadialView
+      ? AtlasViewState.ScatterView
+      : AtlasViewState.RadialView;
+
     return this;
   }
 
@@ -239,10 +264,15 @@ export default class Explorer {
       return;
     }
 
-    const material = this.model.Object.material as Three.ShaderMaterial;
+    const material = this.model.Object.material;
     material.uniforms.uFocused.value = target ? target.Id : -1;
     material.needsUpdate = true;
     this.targetHandler(target);
+    this.hasUpdate = true;
+
+    if (this.activeFocusTween && !this.activeFocusTween.isComplete) {
+      this.activeFocusTween.cancel();
+    }
 
     if (target) {
       if (!point) {
@@ -251,19 +281,12 @@ export default class Explorer {
           return;
         }
 
-        const index = target.Id*4;
-        if (index >= points.length) {
+        if (target.Id*7 >= points.length) {
           return;
         }
 
-        const vx = points?.[index + 0],
-              vy = points?.[index + 1],
-              vz = points?.[index + 2];
-        if (typeof vx !== 'number' || typeof vy !== 'number' || typeof vz !== 'number') {
-          return;
-        }
-
-        point = this.model.Object.localToWorld(new Three.Vector3(vx, vy, vz));
+        point = this.model.Object.getPointAtIndex(target.Id, new Three.Vector3());
+        this.model.Object.localToWorld(point);
       }
 
       if (this.activeFocusTween && !this.activeFocusTween.isComplete) {
@@ -319,11 +342,12 @@ export default class Explorer {
     }
 
     if (this.model) {
-      const material = this.model.Object.material as Three.ShaderMaterial;
+      const material = this.model.Object.material;
       material.uniforms.uFocused.value = -1;
       material.needsUpdate = true;
     }
 
+    this.hasUpdate = true;
     this.cameraController.Update(true);
 
     if (this.atlasAxes) {
@@ -413,20 +437,27 @@ export default class Explorer {
   }
 
   private render(_time?: number, forceUpdate?: boolean): void {
+    let didUpdate = false;
+
     const needsUpdate = !!forceUpdate || this.cameraController.ConsumeUpdate();
     if (needsUpdate) {
       this.updateTooltipCoordinate(true);
+      didUpdate = true;
     }
 
     if (this.atlasAxes) {
       const hasAxisTarget = this.atlasAxes.ConsumeUpdate() || !!this.atlasAxes.HasTarget();
       if (needsUpdate || hasAxisTarget) {
         this.atlasAxes.Update(this.camera);
+        didUpdate = true;
       }
     }
 
-    this.renderer.render(this.scene, this.camera);
-    this.labelRenderer.render(this.scene, this.camera);
+    if (didUpdate || this.hasUpdate) {
+      this.hasUpdate = false;
+      this.renderer.render(this.scene, this.camera);
+      this.labelRenderer.render(this.scene, this.camera);
+    }
   }
 
   private createScene(): void {
@@ -449,6 +480,7 @@ export default class Explorer {
         const model = data.Instantiate({
           ShaderProps: {
             uniforms: {
+              uView: { value: 0.0 },
               uColors: { value: data.colorMap },
               uVisible: { value: new Uint8Array(data.colorMap.length).fill(1) },
               uFocused: { value: Number(-1.0) }
@@ -461,6 +493,8 @@ export default class Explorer {
             wireframe: false,
             depthTest: true,
             depthWrite: true,
+            transparent: true,
+            alphaToCoverage: true,
             side: Three.FrontSide,
           }
         });
@@ -469,11 +503,16 @@ export default class Explorer {
         this.model.Object.scale.set(0, 0, 0);
 
         this.dataset = data;
-        this.scene.add(this.model.Object);
-        this.disposables.push(this.model.dispose);
 
         // Build axes
         const axes = new AtlasAxes({
+          GridSurface: {
+            Plane: {
+              x: { Scale: data.xAxisScale, Range: data.xDataRange },
+              y: { Scale: data.yAxisScale, Range: data.yDataRange },
+              z: { Scale: data.zAxisScale, Range: data.zDataRange },
+            }
+          },
           RadialAxis: {
             Range: {
               Min: data.xAxisScale.Min,
@@ -499,21 +538,85 @@ export default class Explorer {
 
         this.atlasAxes = axes;
         this.atlasAxes.scale.set(0, 0, 0);
+
         this.scene.add(axes);
         this.disposables.push(this.atlasAxes.dispose.bind(this.atlasAxes));
+
+        this.scene.add(this.model.Object);
+        this.disposables.push(this.model.dispose);
 
         // Reorient client view
         this.ResetCamera();
 
         // Start animation
         this.animateScene();
+
+        // Observe view state
+        const sub = this.dataset.Observe().subscribe((value: AtlasViewState) => {
+          if (value === this.dataset.currentViewState) {
+            return;
+          }
+
+          this.FocusTarget(null);
+          this.tweenToView(value);
+        });
+
+        this.disposables.push(() => sub.unsubscribe());
       },
       scale: {
         y: (value): number => {
-          return Math.log10(value)*10;
+          return Math.log10(value + 1)*10;
+        },
+        z: (value): number => {
+          return Math.log10(value + 1)*50;
         },
       }
     });
+  }
+
+  private tweenToView(view: AtlasViewState): void {
+    const points = this.model.Object;
+    const material = points.material;
+
+    const targetPosition = new Three.Vector3();
+    this.atlasAxes.GetTargetWorldOrigin(view, targetPosition);
+    this.atlasAxes.SetViewState(view);
+
+    const pointsTween = new Tweener.Tween(points.position)
+      .to(targetPosition, World.SceneViewStateTranslationAnimation)
+      .easing(Tweener.Easing.Exponential.Out)
+      .delay(World.SceneViewStateTranslationDelay)
+      .start();
+
+    const viewTween = new Tweener.Tween({ value: material.uniforms.uView.value })
+      .to({ value: view }, World.SceneViewStateVertexAnimation)
+      .easing(Tweener.Easing.Elastic.InOut)
+      .onUpdate((frame) => {
+        material.uniforms.uView.value = frame.value;
+        material.needsUpdate = true;
+      })
+      .start();
+
+    const updateFrame = () => {
+      try {
+        this.hasUpdate = true;
+
+        if (!viewTween.isPlaying() && !pointsTween.isPlaying()) {
+          return;
+        }
+
+        viewTween.update();
+        pointsTween.update();
+      }
+      catch (e) {
+        console.error(`View animation err: ${e}`);
+        return;
+      }
+
+      requestAnimationFrame(updateFrame);
+    };
+
+    requestAnimationFrame(updateFrame);
   }
 
   private animateScene(): void {
@@ -536,6 +639,8 @@ export default class Explorer {
 
     const updateFrame = () => {
       try {
+        this.hasUpdate = true;
+
         if (!axesTween.isPlaying() && !pointsTween.isPlaying()) {
           this.ready = true;
           this.cameraController.enabled = true;
@@ -646,6 +751,7 @@ export default class Explorer {
     this.renderer.setSize(width, height);
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     this.labelRenderer.setSize(width, height);
+    this.hasUpdate = true;
   }
 
   private getTooltipTarget(index: number | undefined, point: Three.Vector3): AtlasSelection | undefined {
@@ -655,27 +761,20 @@ export default class Explorer {
 
     const hitRecord = this.dataset.records?.[index];
     if (hitRecord) {
-      const isVisible = (this.model.Object.material as Three.ShaderMaterial).uniforms.uVisible.value?.[hitRecord.SpecialityId];
+      const isVisible = this.model.Object.material.uniforms.uVisible.value?.[hitRecord.SpecialityId];
       if (!isVisible) {
         return undefined;
       }
 
-      const pIndex = index*4;
-      const points = this.model.Points;
-      const vIndices = [ pIndex + 0, pIndex + 1, pIndex + 2 ];
-
-      const hitPosition = point.clone().set(
-        points[vIndices[0]],
-        points[vIndices[1]],
-        points[vIndices[2]]
-      );
+      const hitPosition = this.model.Object.getPointAtIndex(index, point.clone());
       this.model.Object.localToWorld(hitPosition);
 
+      const pIndex = index*7;
       return {
         Index: index,
         Record: hitRecord,
         Origin: hitPosition,
-        Indices: vIndices,
+        Indices: [ pIndex + 0, pIndex + 1, pIndex + 2 ],
         Coordinate: new Three.Vector2(),
       };
     }
@@ -716,6 +815,7 @@ export default class Explorer {
                 }
                 data.needsUpdate = true;
                 this.selection = selectionTarget;
+                this.hasUpdate = true;
 
                 if (this.tooltipHandler) {
                   VecUtils.toScreenSpace(this.selection.Origin, this.camera, this.viewport.size, this.selection.Coordinate);
@@ -749,6 +849,7 @@ export default class Explorer {
       data.array[this.selection.Index] = Utils.packAtlasObject(this.selection.Record.Id, this.selection.Record.SpecialityId, 0);
       data.needsUpdate = true;
       this.selection = undefined;
+      this.hasUpdate = true;
 
       if (this.tooltipHandler) {
         this.tooltipHandler(null);

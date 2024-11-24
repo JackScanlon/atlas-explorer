@@ -46,11 +46,11 @@
 .navigation {
   display: flex;
   gap: 1rem;
+}
 
-  & * {
-    cursor: initial;
-    pointer-events: initial;
-  }
+.navigation * {
+  cursor: initial;
+  pointer-events: initial;
 }
 
 .navigation .navigation__dropdown {
@@ -151,9 +151,26 @@
   color: unset;
   padding: 0px;
   margin: 0px;
+}
 
-  & > svg:hover {
-    filter: invert(50%);
+.icon-button > svg {
+  width: 24px;
+  height: 24px;
+}
+
+.icon-button > svg:hover {
+  filter: invert(50%);
+}
+
+@media only screen and (max-width: 425px) {
+  .icon-button {
+    width: 18px;
+    height: 18px;
+  }
+
+  .icon-button svg {
+    width: 18px;
+    height: 18px;
   }
 }
 
@@ -208,6 +225,18 @@
   }
 }
 
+@media only screen and (max-width: 425px) {
+  .filter-group {
+    width: 18px;
+    height: 18px;
+  }
+
+  .filter-group > button > svg {
+    width: 18px;
+    height: 18px;
+  }
+}
+
 .search-group {
   display: flex;
   flex-flow: row nowrap;
@@ -233,7 +262,6 @@
   border-radius: inherit;
   outline: 2px solid transparent;
   outline-offset: 2px;
-
 }
 
 .search-group .solid-select-control:focus-within {
@@ -330,9 +358,30 @@
   pointer-events: none;
 }
 
+.search-group:has(.solid-select-input:focus) {
+  width: auto !important;
+  margin-left: 1rem;
+}
+
 .search-group .solid-select-container:has(input:focus) {
   opacity: 1;
   width: auto;
   min-width: 150px;
   pointer-events: all;
+}
+
+@media only screen and (max-width: 425px) {
+  .search-group {
+    width: 18px;
+    height: 18px;
+  }
+
+  .search-group > button > svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .navigation:has(.search-group input:focus) > *:not(.search-group) {
+    display: none;
+  }
 }

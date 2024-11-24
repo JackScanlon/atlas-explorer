@@ -168,8 +168,7 @@ export const FilterToggle: Component<{
   const [active, setActive] = createSignal<boolean>(false);
   const [targets, setTargets] = createStore<SpecialityFilter[]>([]);
   const [axesFlags, setAxesFlags] = createStore<AxisFlag[]>([
-    { Text: 'Show Vertical Axis', Target: AxisToggleTarget.VerticalAxis, State: true },
-    { Text: 'Show Radial Axis', Target: AxisToggleTarget.RadialAxis, State: true },
+    { Text: 'Show Axes Helper', Target: AxisToggleTarget.AxesHelper, State: true },
     { Text: 'Show Axes Labels', Target: AxisToggleTarget.AxesLabels, State: true },
   ]);
 

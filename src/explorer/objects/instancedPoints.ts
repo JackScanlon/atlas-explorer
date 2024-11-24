@@ -39,7 +39,7 @@ const transformVertex = (
 	vertexPosition.applyMatrix4(viewWorldMatrix).add(pOffset);
 }
 
-export default class InstancedPoints extends Three.Mesh {
+export default class InstancedPoints extends Three.Mesh<Three.InstancedBufferGeometry, Three.ShaderMaterial> {
   public type: string = 'InstancedPoints';
   public center: Three.Vector2 = new Three.Vector2(0.5, 0.5);
 
@@ -65,20 +65,22 @@ export default class InstancedPoints extends Three.Mesh {
     const geometry = new Three.InstancedBufferGeometry();
     geometry.index = baseGeometry.index;
     geometry.attributes = baseGeometry.attributes;
-    geometry.instanceCount = points.length / 4;
+    geometry.instanceCount = points.length / 7;
 
     // Uint data buffer
     geometry.setAttribute('data', new Three.InstancedBufferAttribute(data, 1, false, 1));
 
     // Interleaved position + scale buffer
-    const pointBuffer = new Three.InstancedInterleavedBuffer(points, 4, 1);
-    geometry.setAttribute( 'scale', new Three.InterleavedBufferAttribute(pointBuffer, 1, 3, false));
-    geometry.setAttribute('offset', new Three.InterleavedBufferAttribute(pointBuffer, 3, 0, false));
+    const pointBuffer = new Three.InstancedInterleavedBuffer(points, 7, 1);
+    geometry.setAttribute('rdOffset', new Three.InterleavedBufferAttribute(pointBuffer, 3, 0, false));
+    geometry.setAttribute('scOffset', new Three.InterleavedBufferAttribute(pointBuffer, 3, 3, false));
+    geometry.setAttribute(   'scale', new Three.InterleavedBufferAttribute(pointBuffer, 1, 6, false));
 
     super(geometry, material);
 
     this.data = data;
     this.points = points;
+    this.position.set(0, 0, 0);
 
     this.disposables.push(geometry.dispose.bind(geometry));
     this.disposables.push(baseGeometry.dispose.bind(baseGeometry));
@@ -98,23 +100,27 @@ export default class InstancedPoints extends Three.Mesh {
     }
   }
 
+  public getPointAtIndex(index: number, vec: Three.Vector3): Three.Vector3 {
+    const pA = this.material.uniforms.uView.value;
+		const p0 = this.geometry.getAttribute('rdOffset');
+		const p1 = this.geometry.getAttribute('scOffset');
+
+    return vec.fromBufferAttribute(p0, index).lerp(vec.clone().fromBufferAttribute(p1, index), pA);
+  }
+
 	public computeBoundingBox(): void {
 		if (!this.boundingBox) {
 			this.boundingBox = new Three.Box3();
 		}
+
 		this.updateWorldMatrix(true, false);
+    this.boundingBox.makeEmpty();
 
-		const pos = this.geometry.getAttribute('offset');
-		if (pos) {
-      this.boundingBox.makeEmpty();
-
-      const vec = new Three.Vector3();
-      const worldMatrix = this.matrixWorld;
-
-      for (let i = 0; i < this.points.length / 4; ++i) {
-        this.boundingBox.expandByPoint(vec.fromBufferAttribute(pos, i).applyMatrix4(worldMatrix));
-      }
-		}
+    const vec = new Three.Vector3();
+    const worldMatrix = this.matrixWorld;
+    for (let i = 0; i < this.points.length / 7; ++i) {
+      this.boundingBox.expandByPoint(this.getPointAtIndex(i, vec).applyMatrix4(worldMatrix));
+    }
 	}
 
   public computeBoundingSphere(): void {
@@ -128,8 +134,7 @@ export default class InstancedPoints extends Three.Mesh {
 		this.updateWorldMatrix(true, false);
 
     const scaleBuffer   = this.geometry.getAttribute('scale'),
-          vertexBuffer  = this.geometry.getAttribute('offset'),
-          instanceCount = this.points.length / 4;
+          instanceCount = this.points.length / 7;
 
     let radiusSqr = 0,
             scale = 0,
@@ -144,7 +149,7 @@ export default class InstancedPoints extends Three.Mesh {
     for (let i = 0; i < instanceCount; ++i) {
       scale = scaleBuffer.getComponent(i, 0);
 
-      point.fromBufferAttribute(vertexBuffer, i)
+      this.getPointAtIndex(i, point)
         .applyMatrix4(worldMatrix);
 
       displacement.copy(point)
@@ -192,14 +197,10 @@ export default class InstancedPoints extends Three.Mesh {
       .clampScalar(0.5, 1.0);
 
     const pointOffset = new Three.Vector3();
-    for (let i = 0; i < points.length / 4; ++i) {
-      pointOffset.set(
-        points[i*4 + 0],
-        points[i*4 + 1],
-        points[i*4 + 2]
-      );
+    for (let i = 0; i < points.length / 7; ++i) {
+      this.getPointAtIndex(i, pointOffset)
 
-      const scale = points[i*4 + 3];
+      const scale = points[i*7 + 6];
       transformVertex(viewWorldMatrix, vA.set(-0.5, -0.5, 0), mvPosition, center, pointOffset, aScale.x*scale, aScale.y*scale);
       transformVertex(viewWorldMatrix, vB.set( 0.5, -0.5, 0), mvPosition, center, pointOffset, aScale.x*scale, aScale.y*scale);
       transformVertex(viewWorldMatrix, vC.set( 0.5,  0.5, 0), mvPosition, center, pointOffset, aScale.x*scale, aScale.y*scale);

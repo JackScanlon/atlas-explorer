@@ -1,7 +1,13 @@
-attribute highp uint  data;
-attribute highp float scale;
-attribute highp vec3  offset;
+#ifndef SCATTER_SIZE
+  #define SCATTER_SIZE 3.0
+#endif
 
+attribute highp uint  data;
+attribute highp vec3  rdOffset;
+attribute highp vec3  scOffset;
+attribute highp float scale;
+
+uniform   highp float uView;
 uniform   highp float uFocused;
 uniform   highp vec3  uColors [ MAP_COUNT ]; // interp from JS
 uniform   lowp  uint  uVisible[ MAP_COUNT ]; // interp from JS
@@ -20,7 +26,6 @@ const highp vec2 center = vec2(0.5, 0.5);
 
 void main() {
   vUv = uv;
-  vSize = scale;
 
   // Unpack bit packed data attr
   highp uint index = ((data >> 16) & m0);
@@ -58,12 +63,16 @@ void main() {
     vVisible = 1.0;
   }
 
+  // Compute vert point & scale from uView
+  highp vec3 offset = mix(rdOffset, scOffset, vec3(uView));
+  vSize = mix(scale, SCATTER_SIZE, uView);
+
   // Emulate `gl_points` size attenuation
 	vec4 mvPosition = modelViewMatrix[3];
 	vec2 mvScale = vec2(length(modelMatrix[0].xyz), length(modelMatrix[1].xyz)) * -mvPosition.z;
   mvScale = clamp(mvScale / 300.0, 0.5, 1.0);
 
   // Finalise
-  highp vec2 pos = (position.xy - (center - vec2(0.5))) * (grow * scale * mvScale);
+  highp vec2 pos = (position.xy - (center - vec2(0.5))) * (grow * vSize * mvScale);
   gl_Position = projectionMatrix * (modelViewMatrix * vec4(offset, 1) + vec4(pos, 0, 0));
 }

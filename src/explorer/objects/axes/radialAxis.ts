@@ -15,6 +15,7 @@ import { AxisToggleTarget } from '@/explorer/types'
 export default class RadialAxis extends Three.Mesh<Three.PlaneGeometry, Three.ShaderMaterial> {
   public type: string = 'RadialAxis';
   public axisScale!: Three.Vector3;
+  public worldOrigin: Three.Vector3 = new Three.Vector3(0, 0, 0);
 
   private axis: AxisToggleTarget = AxisToggleTarget.RadialAxis;
 
@@ -32,9 +33,11 @@ export default class RadialAxis extends Three.Mesh<Three.PlaneGeometry, Three.Sh
       },
       vertexShader: RadialAxisVertShader,
       fragmentShader: RadialAxisFragShader,
-      side: Three.DoubleSide,
       transparent: true,
       depthWrite: false,
+      depthTest: true,
+      dithering: true,
+      side: Three.DoubleSide,
     });
 
     super(geometry, material);

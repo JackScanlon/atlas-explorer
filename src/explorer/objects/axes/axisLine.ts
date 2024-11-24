@@ -16,20 +16,22 @@ export default class AxisLine extends Three.Line<Three.BufferGeometry, Three.Lin
   public constructor(opts: AxisLineOpts) {
     opts = { ...AxisLineDefaults, ...opts};
 
-    const material = opts.Dashed!
+    const material = !!opts.Dashed!
       ? new Three.LineDashedMaterial({
         color: opts.Color!.getHex(),
         linewidth: opts.Width!,
         gapSize: 1,
         scale: 1,
-        dashSize: 1,
+        dashSize: 2,
         transparent: true,
+        dithering: true,
       })
       : new Three.LineBasicMaterial({
         color: opts.Color!.getHex(),
         linewidth: opts.Width!,
         vertexColors: false,
         transparent: true,
+        dithering: true,
       });
 
     const geometry = new Three.BufferGeometry();
@@ -85,6 +87,7 @@ export default class AxisLine extends Three.Line<Three.BufferGeometry, Three.Lin
   public UpdateGeometry(): void {
     this.geometry.setFromPoints(this.vertices);
     this.geometry.computeBoundingSphere();
+    this.computeLineDistances();
   }
 
   public dispose(): void {

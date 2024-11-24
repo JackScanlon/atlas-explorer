@@ -61,7 +61,7 @@ export namespace World {
       origin: new Three.Vector3(0.0, 15.0, -200),
       fieldOfView: 70.0,
       nearPlane: 0.1,
-      farPlane: 590.0,
+      farPlane: 800.0,
     },
 
     // World fog
@@ -104,7 +104,16 @@ export namespace World {
     ScenePointsTweenDelay = 1000,
 
     // Duration, in ms, of the banner tween
-    SceneBannerTweenAnimation = 1250;
+    SceneBannerTweenAnimation = 1250,
+
+    // Duration, in ms, of view state position transition
+    SceneViewStateTranslationAnimation = 750,
+
+    // Delay, in ms, of view state position transition
+    SceneViewStateTranslationDelay = 250,
+
+    // Duration, in ms, of view state vertex transition
+    SceneViewStateVertexAnimation = 1500;
 };
 
 export namespace Workspace {
@@ -171,6 +180,7 @@ export namespace Workspace {
     AtlasDesiredSteps = {
       x: 10,
       y: 100,
+      z: 10,
     },
 
     // Axis tick steps
@@ -183,7 +193,7 @@ export namespace Workspace {
     AtlasExplorerDefaults: ExplorerOpts = {
       Appearance: {
         Canvas:  {
-          ClassName: 'atlas-explorer-canvas',
+          ClassList: ['atlas-explorer-canvas', 'no-user-selection'],
           ZIndex: 0
         },
         Drawing: {

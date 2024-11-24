@@ -1,6 +1,14 @@
 import * as Three from 'three'
+import * as rx from 'rxjs'
+
 import { Setter } from 'solid-js'
 import InstancedPoints from './objects/instancedPoints';
+
+// Model view state target
+export enum AtlasViewState {
+  RadialView  = 0,
+  ScatterView = 1,
+};
 
 // Handler specifying a disposable hook
 export type DisposableItem = () => void;
@@ -66,6 +74,7 @@ export type AtlasRecord = {
   SlugRef: string,
   x: number,
   y: number,
+  z: number,
 };
 
 // Bit packed buffer data
@@ -126,8 +135,9 @@ export interface IAtlasData {
 
   // Method(s)
   Instantiate: (opts: AtlasBuildOptions) => AtlasGeom;
-  AddRecord: (record: AtlasRecord, vert: Three.Vector3, scale: number, ref: number) => IAtlasData;
+  AddRecord: (record: AtlasRecord, radialVert: Three.Vector3, scatterVert: Three.Vector3, scale: number) => IAtlasData;
   AddColorMapping: (colorValue: number) => IAtlasData;
+  Observe: () => rx.Observable<AtlasViewState>;
 }
 
 // Three.JS `Loader` callback(s)
@@ -145,6 +155,7 @@ export type AlScaleFn = (val: number, min: number, max: number) => number;
 export type AlScalingOpt = {
   x?: AlScaleTarget | AlScaleFn,
   y?: AlScaleTarget | AlScaleFn,
+  z?: AlScaleTarget | AlScaleFn,
 };
 
 // Load opts for the `AtlasLoader::loadWithOpts` method
@@ -234,6 +245,7 @@ export enum AxisToggleTarget {
   AxesLabels   = 1,
   RadialAxis   = 2,
   VerticalAxis = 3,
+  GridSurface  = 4,
 };
 
 export type AxisFlag = {

@@ -368,13 +368,14 @@ button.feature-tooltip.feature-tooltip--visible {
   margin: 0;
 }
 
-@media only screen and (max-width: 475px) {
+@media screen and (max-height: 400px) and (orientation: landscape), (max-width: 475px) and (orientation: portrait) {
   .info-card {
     --offset-x: 0%;
     --offset-y: 100%;
 
     width: calc(100vw - 2rem);
     min-width: min-content;
+    max-height: 80vh;
   }
 
   .info-card.info-card--visible {
@@ -390,7 +391,7 @@ button.feature-tooltip.feature-tooltip--visible {
   }
 
   .info-card  .info-card__grid {
-    max-height: 25vh;
+    max-height: 30vh;
   }
 
   .info-card .info-card__attribute {

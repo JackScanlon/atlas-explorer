@@ -6,10 +6,11 @@ import * as QuatUtils from '../../common/quatUtils'
 
 import AxisLine from './axisLine';
 import RadialAxis from './radialAxis';
+import GridSurface from './gridSurface';
 
 import { Const } from '@/explorer/constants';
 import { AtlasAxesOpts, AxisHoverTarget, AxisObject } from './types';
-import { AxisToggleTarget } from '@/explorer/types';
+import { AtlasViewState, AxisToggleTarget } from '@/explorer/types';
 import { AxisHelperDefaults, RadialAxisDefaults, VerticalAxisDefaults } from './constants';
 
 const XZ_VECTOR = new Three.Vector3(1.0, 0.0, 1.0);
@@ -20,6 +21,7 @@ export default class AtlasAxes extends Three.Group {
   private origin!: Three.Vector3;
   private elements: Record<string, Css2d.CSS2DObject> = {};
   private components: Record<string, Three.Object3D> = {};
+  private viewState: AtlasViewState = AtlasViewState.RadialView;
 
   private hasUpdate: boolean = true;
   private axisTarget: AxisHoverTarget | undefined = undefined;
@@ -59,6 +61,21 @@ export default class AtlasAxes extends Three.Group {
 
   public GetInteractable(): Three.Object3D[] {
     return [this.components.radialLine, this.components.verticalLine];
+  }
+
+  public GetTargetWorldOrigin(view: AtlasViewState, vec: Three.Vector3): Three.Vector3 {
+    const origin = view === AtlasViewState.RadialView
+      ? this.GetComponent<RadialAxis>('radialAxis')!.worldOrigin
+      : this.GetComponent<GridSurface>('gridSurface')!.worldOrigin;
+
+    return vec.copy(origin);
+  }
+
+  public SetViewState(target: AtlasViewState): AtlasAxes {
+    this.viewState = target;
+    this.ToggleHelperView();
+
+    return this;
   }
 
   public SetTarget(target: AxisToggleTarget | undefined = undefined, point: Three.Vector3 | undefined = undefined): AtlasAxes {
@@ -157,15 +174,26 @@ export default class AtlasAxes extends Three.Group {
   }
 
   public ComputeRadialLabel(target: Three.Vector3): Three.Vector3 {
+    const isRadialView = this.viewState === AtlasViewState.RadialView;
+    const elements    = this.elements,
+          radialLabel = elements.radialLabel,
+          originLabel = elements.originLabel;
+
+    const targetOpacity = isRadialView ? '1' : '0';
+    if (radialLabel.element.style.opacity !== targetOpacity) {
+      radialLabel.element.style.opacity = targetOpacity;
+      originLabel.element.style.opacity = targetOpacity;
+    }
+
+    if (!isRadialView) {
+      return target.clone();
+    }
+
     const prop = this.properties.RadialAxis;
     const axis = prop.Scale;
     const size = (axis.Max - axis.Min)*2;
-
-    const origin   = this.origin,
-          elements = this.elements;
-
+    const origin = this.origin;
     const point = VecUtils.closestPointOnRay(target, origin, target.clone().sub(origin), 0, size);
-    const radialLabel = elements.radialLabel;
 
     const value = (point.Distance/size)*(prop.Range.Max - prop.Range.Min);
     radialLabel.visible = this.showLabels && value > 2.0;
@@ -177,13 +205,24 @@ export default class AtlasAxes extends Three.Group {
   }
 
   public ComputeVerticalLabel(target: Three.Vector3 | undefined): Three.Vector3 {
+    const isRadialView = this.viewState === AtlasViewState.RadialView;
+    const elements = this.elements,
+          label    = elements.verticalLabel;
+
+    const targetOpacity = isRadialView ? '1' : '0';
+    if (label.element.style.opacity !== targetOpacity) {
+      label.element.style.opacity = targetOpacity;
+    }
+
+    if (!isRadialView) {
+      return label.position.clone();
+    }
+
     const prop = this.properties.VerticalAxis;
     const axis = prop.Scale;
     const size = (axis.Max - axis.Min)*2;
 
-    const range    = prop.Range.Max - prop.Range.Min,
-          elements = this.elements,
-          label    = elements.verticalLabel;
+    const range = prop.Range.Max - prop.Range.Min;
 
     let value: number = range;
     if (target) {
@@ -202,30 +241,71 @@ export default class AtlasAxes extends Three.Group {
   }
 
   public SetVisibility(targets: Record<AxisToggleTarget, boolean>): AtlasAxes {
+    const isRadialView = this.viewState === AtlasViewState.RadialView;
+    const axesHelperOpacity = !targets[AxisToggleTarget.AxesHelper] ? 0 : 1;
+    const axesLabelOpacity = targets[AxisToggleTarget.AxesLabels];
+
     const radialAxis = this.GetComponent<RadialAxis>('radialAxis');
     if (radialAxis) {
-      radialAxis.material.uniforms.uOpacity.value = !targets[AxisToggleTarget.RadialAxis] ? 0 : 1;
+      radialAxis.material.uniforms.uOpacity.value = axesHelperOpacity;
       radialAxis.material.needsUpdate = true;
+      radialAxis.visible = isRadialView;
     }
 
     const radialLine = this.GetComponent<RadialAxis>('radialLine');
     if (radialLine) {
-      radialLine.material.opacity = !targets[AxisToggleTarget.RadialAxis] ? 0 : 1;
+      radialLine.material.opacity = axesHelperOpacity;
       radialLine.material.needsUpdate = true;
+      radialLine.visible = isRadialView;
     }
 
     const verticalLine = this.GetComponent<AxisLine>('verticalLine');
     if (verticalLine) {
-      verticalLine.material.opacity = !targets[AxisToggleTarget.VerticalAxis] ? 0 : 1;
+      verticalLine.material.opacity = axesHelperOpacity;
       verticalLine.material.needsUpdate = true;
+      verticalLine.visible = isRadialView;
     }
 
-    if (!!targets[AxisToggleTarget.AxesLabels] !== this.showLabels) {
+    const gridSurface = this.GetComponent<GridSurface>('gridSurface');
+    if (gridSurface) {
+      gridSurface.material.uniforms.uOpacity.value = axesHelperOpacity;
+      gridSurface.material.needsUpdate = true;
+      gridSurface.visible = !isRadialView;
+    }
+
+    if (!!axesLabelOpacity !== this.showLabels) {
       this.hasUpdate = true;
     }
     this.showLabels = !!targets[AxisToggleTarget.AxesLabels];
     this.elements.originLabel.visible = this.showLabels;
 
+    return this;
+  }
+
+  public ToggleHelperView(): AtlasAxes {
+    const isRadialView = this.viewState === AtlasViewState.RadialView;
+
+    const radialAxis = this.GetComponent<RadialAxis>('radialAxis');
+    if (radialAxis) {
+      radialAxis.visible = isRadialView;
+    }
+
+    const radialLine = this.GetComponent<RadialAxis>('radialLine');
+    if (radialLine) {
+      radialLine.visible = isRadialView;
+    }
+
+    const verticalLine = this.GetComponent<AxisLine>('verticalLine');
+    if (verticalLine) {
+      verticalLine.visible = isRadialView;
+    }
+
+    const gridSurface = this.GetComponent<GridSurface>('gridSurface');
+    if (gridSurface) {
+      gridSurface.visible = !isRadialView;
+    }
+
+    this.hasUpdate = true;
     return this;
   }
 
@@ -264,6 +344,12 @@ export default class AtlasAxes extends Three.Group {
   private initialise(): void {
     const props = this.properties;
 
+    const gridSurface = new GridSurface(props.GridSurface);
+    gridSurface.visible = false;
+
+    this.components.gridSurface = gridSurface;
+    this.add(gridSurface);
+
     // Init geom(s)
     const radialSize = (props.RadialAxis.Scale.Max - props.RadialAxis.Scale.Min)*2;
     const radialAxis = new RadialAxis(props.RadialAxis);
@@ -300,6 +386,7 @@ export default class AtlasAxes extends Three.Group {
     // Init label(s)
     const originLabelDiv = document.createElement('div');
     originLabelDiv.textContent = '(Age: 0, Freq: 0)';
+    originLabelDiv.style.transition = 'opacity 250ms ease-in-out';
     originLabelDiv.style.backgroundColor = 'transparent';
 
     const originLabel = new Css2d.CSS2DObject(originLabelDiv);
@@ -311,6 +398,7 @@ export default class AtlasAxes extends Three.Group {
 
     const radialLabelDiv = document.createElement('div');
     radialLabelDiv.textContent = `(Age: ${props.RadialAxis.Range.Max.toFixed(0)}, Freq: 0)`;
+    radialLabelDiv.style.transition = 'opacity 250ms ease-in-out';
     radialLabelDiv.style.backgroundColor = 'transparent';
 
     const radialLabel = new Css2d.CSS2DObject(radialLabelDiv);
@@ -322,6 +410,7 @@ export default class AtlasAxes extends Three.Group {
 
     const verticalLabelDiv = document.createElement('div');
     verticalLabelDiv.textContent = `(Age: 0, ${props.VerticalAxis.Range.Max.toFixed(0)})`;
+    verticalLabelDiv.style.transition = 'opacity 250ms ease-in-out';
     verticalLabelDiv.style.backgroundColor = 'transparent';
 
     const verticalLabel = new Css2d.CSS2DObject(verticalLabelDiv);

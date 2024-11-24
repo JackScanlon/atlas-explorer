@@ -154,19 +154,7 @@ export default class CameraController {
       distance = this.distance;
     }
 
-    return new CancellablePromise((resolve, reject) => {
-      this.insideTween = true;
-
-      this.createTargetFocusTween(target, distance)
-        .then(_ => {
-          this.insideTween = false;
-          resolve();
-        })
-        .catch((reason: any) => {
-          this.insideTween = false;
-          reject(reason)
-        });
-    });
+    return this.createTargetFocusTween(target, distance);
   }
 
   public ResetState(): CameraController {
@@ -300,61 +288,76 @@ export default class CameraController {
     this.domElement.removeEventListener(        'wheel', this.wheelChangeHandler);
   }
 
-  private createTargetFocusTween(target: Three.Vector3, distance: number): Promise<void> {
-    return new Promise((resolve, reject) => {
-      const displacement = target.clone()
-        .sub(this.object.position);
+  private createTargetFocusTween(target: Three.Vector3, distance: number): CancellablePromise<void> {
+    let exitTween = false;
+    this.insideTween = true;
 
-      const distanceAlpha = Math.pow(displacement.length() / World.FocusTweenTravelDistance, 2);
-      const tweenDuration = World.FocusTweenMinDuration*distanceAlpha + World.FocusTweenMinDuration;
+    return new CancellablePromise(
+      (resolve, reject) => {
+        const displacement = target.clone()
+          .sub(this.object.position);
 
-      const targetTween = new Tweener.Tween(this.target)
-        .to(target, tweenDuration)
-        .easing(Tweener.Easing.Exponential.Out)
-        .interpolation(Tweener.Interpolation.CatmullRom)
-        .start();
+        const distanceAlpha = Math.pow(displacement.length() / World.FocusTweenTravelDistance, 2);
+        const tweenDuration = World.FocusTweenMinDuration*distanceAlpha + World.FocusTweenMinDuration;
 
-      displacement.normalize()
-        .multiplyScalar(-distance)
-        .add(target);
+        const targetTween = new Tweener.Tween(this.target)
+          .to(target, tweenDuration)
+          .easing(Tweener.Easing.Exponential.Out)
+          .interpolation(Tweener.Interpolation.CatmullRom)
+          .start();
 
-      const translationTween = new Tweener.Tween(this.object.position)
-        .to(displacement, tweenDuration)
-        .easing(Tweener.Easing.Exponential.Out)
-        .interpolation(Tweener.Interpolation.CatmullRom)
-        .start();
+        displacement.normalize()
+          .multiplyScalar(-distance)
+          .add(target);
 
-      const distanceSrc = { value: this.distance };
-      const distanceTween = new Tweener.Tween(distanceSrc)
-        .to({ value: distance }, tweenDuration*0.5)
-        .easing(Tweener.Easing.Cubic.In)
-        .interpolation(Tweener.Interpolation.Bezier)
-        .start();
+        const translationTween = new Tweener.Tween(this.object.position)
+          .to(displacement, tweenDuration)
+          .easing(Tweener.Easing.Exponential.Out)
+          .interpolation(Tweener.Interpolation.CatmullRom)
+          .start();
 
-      const updateFrame = () => {
-        try {
-          if (!targetTween.isPlaying() && !distanceTween.isPlaying() && !translationTween.isPlaying()) {
-            resolve();
+        const distanceSrc = { value: this.distance };
+        const distanceTween = new Tweener.Tween(distanceSrc)
+          .to({ value: distance }, tweenDuration*0.5)
+          .easing(Tweener.Easing.Cubic.In)
+          .interpolation(Tweener.Interpolation.Bezier)
+          .start();
+
+        const updateFrame = () => {
+          try {
+            if (exitTween) {
+              this.insideTween = false;
+              return;
+            }
+
+            if (!targetTween.isPlaying() && !distanceTween.isPlaying() && !translationTween.isPlaying()) {
+              this.insideTween = false;
+              resolve();
+              return;
+            }
+
+            translationTween.update();
+            targetTween.update();
+            distanceTween.update();
+
+            this.spherical.radius = distanceSrc.value;
+            this.Update();
+          }
+          catch (e) {
+            this.insideTween = false;
+            reject(e);
             return;
           }
 
-          translationTween.update();
-          targetTween.update();
-          distanceTween.update();
-
-          this.spherical.radius = distanceSrc.value;
-          this.Update();
-        }
-        catch (e) {
-          reject(e);
-          return;
-        }
+          requestAnimationFrame(updateFrame);
+        };
 
         requestAnimationFrame(updateFrame);
-      };
-
-      requestAnimationFrame(updateFrame);
-    })
+      },
+      () => {
+        exitTween = true;
+      }
+    )
   }
 
   private updateZoomParameters(x: number, y: number): void {

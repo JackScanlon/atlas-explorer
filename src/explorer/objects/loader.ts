@@ -1,4 +1,5 @@
 import * as Three from 'three'
+import * as rx from 'rxjs'
 
 import InstancedPoints from './instancedPoints'
 
@@ -7,7 +8,8 @@ import {
   AlLoadedCallback, AlProgressCallback,
   AlErrCallback, AtlasSpeciality, AtlasTarget,
   AtlasBuildOptions, AtlasLoadOptions, AtlasGeom,
-  AlScalingOpt, AlAxisScale, AlDataRange
+  AlScalingOpt, AlAxisScale, AlDataRange,
+  AtlasViewState
 } from '../types'
 
 import { Const, World, Workspace } from '../constants'
@@ -23,17 +25,23 @@ import {
  */
 class AtlasData implements IAtlasData {
   private bbox?: Three.Box3;
+
   private minBounds: Three.Vector3 = new Three.Vector3( Infinity,  Infinity,  Infinity);
   private maxBounds: Three.Vector3 = new Three.Vector3(-Infinity, -Infinity, -Infinity);
 
   public xDataRange!: AlDataRange;
   public yDataRange!: AlDataRange;
+  public zDataRange!: AlDataRange;
 
   public xAxisScale!: AlAxisScale;
   public yAxisScale!: AlAxisScale;
+  public zAxisScale!: AlAxisScale;
 
   public specialities!: AtlasSpeciality[];
   public relationships!: Record<string, AtlasTarget>;
+
+  private viewState: rx.Subject<AtlasViewState> = new rx.Subject();
+  private currentView: AtlasViewState = AtlasViewState.RadialView;
 
   public constructor(
     public points    : number[]      = [],
@@ -41,6 +49,17 @@ class AtlasData implements IAtlasData {
     public reference : number[]      = [],
     public colorMap  : number[]      = []
   ) { }
+
+  public get currentViewState(): AtlasViewState {
+    return this.currentView;
+  }
+
+  public set currentViewState(value: AtlasViewState) {
+    if (this.currentView !== value) {
+      this.viewState.next(value);
+      this.currentView = value;
+    }
+  }
 
   public get boundingBox(): Three.Box3 {
     if (!this.bbox) {
@@ -50,20 +69,24 @@ class AtlasData implements IAtlasData {
     return this.bbox!;
   }
 
-  public AddRecord(record: AtlasRecord, vert: Three.Vector3, scale: number): AtlasData {
+  public AddRecord(record: AtlasRecord, radialVert: Three.Vector3, scatterVert: Three.Vector3, scale: number): AtlasData {
     const { Id, SpecialityId } = record;
 
-    const index = Id*4;
+    const index = Id*7;
     this.records[Id] = record;
     this.reference[Id] = packAtlasObject(Id, SpecialityId, false);
 
-    this.points[index + 0] = vert.x;
-    this.points[index + 1] = vert.y;
-    this.points[index + 2] = vert.z;
-    this.points[index + 3] = scale;
+    // Interleaved
+    this.points[index + 0] = radialVert.x;
+    this.points[index + 1] = radialVert.y;
+    this.points[index + 2] = radialVert.z;
+    this.points[index + 3] = scatterVert.x;
+    this.points[index + 4] = scatterVert.y;
+    this.points[index + 5] = scatterVert.z;
+    this.points[index + 6] = scale;
 
-    this.minBounds.min(vert);
-    this.maxBounds.max(vert);
+    this.minBounds.min(radialVert);
+    this.maxBounds.max(radialVert);
 
     return this;
   }
@@ -75,7 +98,7 @@ class AtlasData implements IAtlasData {
   }
 
   public ResizeToFit(recordLen: number): AtlasData {
-    this.points = Array(recordLen*4).fill(0);
+    this.points = Array(recordLen*7).fill(0);
     this.records = Array(recordLen);
     this.reference = Array(recordLen).fill(0);
 
@@ -104,6 +127,10 @@ class AtlasData implements IAtlasData {
         this.yAxisScale = scale;
         break;
 
+      case 'z':
+        this.zAxisScale = scale;
+        break;
+
       default:
         break;
     }
@@ -123,11 +150,19 @@ class AtlasData implements IAtlasData {
         this.yDataRange = { Min: min, Max: max };
         break;
 
+      case 'z':
+        this.zDataRange = { Min: min, Max: max };
+        break;
+
       default:
         break;
     }
 
     return this;
+  }
+
+  public Observe(): rx.Observable<AtlasViewState> {
+    return this.viewState.asObservable();
   }
 
   public Instantiate(opts?: AtlasBuildOptions): AtlasGeom {
@@ -137,6 +172,8 @@ class AtlasData implements IAtlasData {
 
     const points = Float32Array.from(this.points),
             data = Uint32Array.from(this.reference);
+
+    this.viewState.next(AtlasViewState.RadialView);
 
     const material = new Three.ShaderMaterial(opts.ShaderProps);
     const object = new InstancedPoints(points, data, material);
@@ -228,8 +265,8 @@ class AtlasLoader extends Three.Loader {
     let ymax: number = 0,        // Frequency range
         ymin: number = Infinity;
 
-    let smax: number = 0,        // Standardised Mortality Ratio range
-        smin: number = Infinity;
+    let zmax: number = 0,        // Standardised Mortality Ratio range
+        zmin: number = Infinity;
 
     for (let i = 0; i < datapoints.length; ++i) {
       const elem: AtlasObject = datapoints[i];
@@ -286,7 +323,7 @@ class AtlasLoader extends Three.Loader {
       // Push record and cont.
       const x = toFixedFloat(elem.Age),
             y = toFixedFloat(elem.Frequency),
-            s = toFixedFloat(elem.Mortality, 4);
+            z = toFixedFloat(elem.Mortality, 4);
 
       const record: AtlasRecord = {
         ...elem,
@@ -296,9 +333,10 @@ class AtlasLoader extends Three.Loader {
           Frequency: toFixedFloat(y, 2),
           SpecialityId: specId,
           OrganId: trgId,
-          Mortality: s,
+          Mortality: z,
           x: x,
           y: y,
+          z: z,
         },
       };
       records.push(record);
@@ -309,8 +347,8 @@ class AtlasLoader extends Three.Loader {
       ymin = Math.min(ymin, y);
       ymax = Math.max(ymax, y);
 
-      smin = Math.min(smin, s);
-      smax = Math.max(smax, s);
+      zmin = Math.min(zmin, z);
+      zmax = Math.max(zmax, z);
 
       recordId++;
     }
@@ -322,28 +360,34 @@ class AtlasLoader extends Three.Loader {
         startRotation  = 0;
 
     const xAxisScale = getScalerFn(scaling?.x),
-          yAxisScale = getScalerFn(scaling?.y);
+          yAxisScale = getScalerFn(scaling?.y),
+          zAxisScale = getScalerFn(scaling?.z);
 
     const shouldScaleX = !!xAxisScale,
-          shouldScaleY = !!yAxisScale;
+          shouldScaleY = !!yAxisScale,
+          shouldScaleZ = !!zAxisScale;
 
     // Resize to shape & set range
     parsedData.ResizeToFit(records.length);
     parsedData.SetAxisRange('x', xmin, xmax);
     parsedData.SetAxisRange('y', ymin, ymax);
+    parsedData.SetAxisRange('z', zmin, zmax);
 
     // Generate clustered vertices and assoc. ref fields
-    let vert!: Three.Vector3, item!: AtlasRecord;
+    let item!: AtlasRecord;
+    let radialVert = new Three.Vector3(),
+        scatterVert = new Three.Vector3();
 
     let vMinX = Infinity, vMaxX = -Infinity;
     let vMinY = Infinity, vMaxY = -Infinity;
+    let vMinZ = Infinity, vMaxZ = -Infinity;
     for (let i = 0; i < groups.length; ++i) {
       const recordIds = groups[i].RecordIds;
       const invRecordLen = 1 / recordIds.length;
       for (let j = 0; j < recordIds.length; ++j) {
         item = records[recordIds[j]];
 
-        let { x, y } = item;
+        let { x, y, z } = item;
         if (shouldScaleX) {
           x = xAxisScale(x, xmin, xmax);
         };
@@ -352,11 +396,16 @@ class AtlasLoader extends Three.Loader {
           y = yAxisScale(y, ymin, ymax);
         };
 
-        vert = new Three.Vector3(x, y, 0);
-        rotatePointAroundOrigin(vert, Const.ZeroVector, startRotation + thetaIncrement*j*invRecordLen);
+        if (shouldScaleZ) {
+          z = zAxisScale(z, zmin, zmax);
+        };
 
         item.x = x;
         item.y = y;
+        item.z = z;
+
+        radialVert.set(x, y, 0);
+        rotatePointAroundOrigin(radialVert, Const.ZeroVector, startRotation + thetaIncrement*j*invRecordLen);
 
         vMinX = Math.min(vMinX, x);
         vMaxX = Math.max(vMaxX, x);
@@ -364,7 +413,15 @@ class AtlasLoader extends Three.Loader {
         vMinY = Math.min(vMinY, y);
         vMaxY = Math.max(vMaxY, y);
 
-        parsedData.AddRecord(item, vert, Workspace.MortalityBaseSize + Workspace.MortalityScaleSize*(item.Mortality/(smax - smin)));
+        vMinZ = Math.min(vMinZ, z);
+        vMaxZ = Math.max(vMaxZ, z);
+
+        parsedData.AddRecord(
+          item,
+          radialVert,
+          scatterVert.set(x, y, z),
+          Workspace.MortalityBaseSize + Workspace.MortalityScaleSize*(item.Mortality/(zmax - zmin))
+        );
       }
       startRotation += thetaIncrement;
     }
@@ -376,6 +433,7 @@ class AtlasLoader extends Three.Loader {
     // Fit scaled axes
     parsedData.SetAxisScale('x', computeAxisScale(vMinX, vMaxX, Workspace.AtlasDesiredSteps.x));
     parsedData.SetAxisScale('y', computeAxisScale(vMinY, vMaxY, Workspace.AtlasDesiredSteps.y));
+    parsedData.SetAxisScale('z', computeAxisScale(vMinZ, vMaxZ, Workspace.AtlasDesiredSteps.z));
 
     return parsedData;
   }

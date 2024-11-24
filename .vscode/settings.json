@@ -1,0 +1,22 @@
+{
+  // Git behaviour
+  "git.autofetch": true,
+
+  // Languages
+  "[jsonc]": {
+    "editor.defaultFormatter": "vscode.json-language-features"
+  },
+
+  // Extensions
+  "webgl-glsl-editor.diagnostics": false,
+
+  // Editor
+  "editor.tabSize": 2,
+  "editor.insertSpaces": true,
+  "editor.detectIndentation": false,
+
+  // Base formatting
+  "files.trimTrailingWhitespace": true,
+  "files.insertFinalNewline": true,
+  "files.trimFinalNewlines": true,
+}

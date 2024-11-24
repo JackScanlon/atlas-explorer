@@ -277,7 +277,26 @@ $ npm run preview
     - [x] Cleanup const. usage across project
     - [x] Cleanup documentation
 
-### 4.5. Thoughts, issues & the future
+### 4.5. Scatter Plot & Improvements
+
+1. [x] Initial work for scatter
+    - [x] Data extraction
+    - [x] Rework explorer & assoc. instances
+
+2. [x] Impl. scatter plot view
+    - [x] Tween points between views via vertex shader
+    - [x] Improve data access
+
+3. [x] Impl. base scatter axes via frag; drawing grid on backface of box
+
+4. [x] Impl. spring on tween banner; current impl. isn't very smooth & we can easily reduce a dependency here
+
+5. [ ] Add labels to scatter axes
+    - [ ] Paint crosshair target on selection
+    - [ ] Scaled axes labels on X/Y/Z
+    - [ ] Select edges of box on the near plane of camera for each axis
+
+### 4.6. Thoughts, issues & the future
 
 1. Consider reimplmenting points:
     - Mac devices clamps `GL_POINT` size much more than other platforms so points look many times smaller; attenuation is much more pronounced when the viewport is close to the subject - see reference @ [here](https://webglreport.com/?v=2)

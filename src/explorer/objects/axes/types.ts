@@ -2,6 +2,40 @@ import * as Three from 'three'
 
 import { AlAxisScale, AlDataRange, AxisToggleTarget } from '../../types'
 
+/* Grid Surface */
+export interface GridSurfaceSpacingProps {
+  Axis?: number,
+  Tick?: number,
+};
+
+// Grid surface line props
+export interface GridSurfaceLineProps {
+  Axis?: number,
+  Tick?: number,
+};
+
+// Grid surface props for individual axes
+export interface GridSurfaceAxis {
+  Scale: AlAxisScale,
+  Range: AlDataRange,
+};
+
+// Grid surface axis data props
+export interface GridSurfaceAxisData {
+  x: GridSurfaceAxis,
+  y: GridSurfaceAxis,
+  z: GridSurfaceAxis,
+};
+
+// Grid Surface constructor props
+export interface GridSurfaceOpts {
+  Plane: GridSurfaceAxisData,
+  Color?: Three.Color,
+  Width?: GridSurfaceLineProps,
+  Spacing?: GridSurfaceSpacingProps,
+  Rotation?: Three.Quaternion,
+};
+
 /* Radial Axis */
 // Radial axis constructor props
 export interface RadialAxisOpts {
@@ -38,6 +72,7 @@ export interface AtlasAxesOpts {
   AxisHelper: AxisHelperOpts,
   RadialAxis: RadialAxisOpts,
   VerticalAxis: VerticalAxisOpts,
+  GridSurface: GridSurfaceOpts,
 };
 
 /* Axis Line */

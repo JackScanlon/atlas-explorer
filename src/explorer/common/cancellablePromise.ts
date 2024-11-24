@@ -1,3 +1,7 @@
+export type PromiseExecutor<T> = (resolve: (value: T | PromiseLike<T>) => void, reject: (reason?: any) => void) => void;
+
+export type PromiseCancelHandler = () => void;
+
 /**
  * CancellablePromise
  * @desc A promise that can be cancelled before its fulfilled/resolved
@@ -16,10 +20,16 @@ export default class CancellablePromise<T> implements Promise<T> {
     return this.completed;
   }
 
-  public constructor(...args: ConstructorParameters<typeof Promise<T>>) {
-    const promise = new Promise(...args);
+  public constructor(executor: PromiseExecutor<T>, onCancel: PromiseCancelHandler) {
+    const promise = new Promise(executor);
     this.promise = new Promise<T>((resolve, reject) => {
-      this.rejectable = reject
+      this.rejectable = (reason?: any) => {
+        if (!!reason && reason instanceof Object && reason.hasOwnProperty('wasCancelled')) {
+          onCancel();
+        }
+
+        reject(reason);
+      }
 
       promise.then(
         r => resolve(r),

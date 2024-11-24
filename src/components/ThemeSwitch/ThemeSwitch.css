@@ -26,3 +26,20 @@
   padding: 0px;
   margin: 0px;
 }
+
+.theme-switch svg {
+  width: 24px;
+  height: 24px;
+}
+
+@media only screen and (max-width: 425px) {
+  .theme-switch {
+    width: 18px;
+    height: 18px;
+  }
+
+  .theme-switch svg {
+    width: 18px;
+    height: 18px;
+  }
+}

@@ -5,9 +5,12 @@ varying  lowp float vVisible;
 varying  lowp float vFocused;
 varying  lowp float vSelected;
 
-const highp vec3  lum            = vec3(0.2126, 0.7152, 0.0722);
-const highp float edgeThickness  = 10.0;
-const highp float borderGradient = 1.1;
+uniform   highp float uFocused;
+
+const highp vec3  lum             = vec3(0.2126, 0.7152, 0.0722);
+const highp float edgeThickness   = 10.0;
+const highp float borderGradient  = 1.1;
+const highp float obscuredOpacity = 0.65;
 
 highp vec4 selectColor(in highp vec3 col, in highp float hueShift, in highp float satShift) {
   highp vec3 p = vec3(0.55735)*dot(vec3(0.55735), col);
@@ -65,7 +68,13 @@ void main() {
     comp = mix(comp, outlineColor, chan);
   }
 
-  gl_FragColor = comp;
+  alpha = clamp(comp.w, 0.0, 1.0);
+
+  highp float alphaOffset = 1.0;
+  if (uFocused >= 0.0) {
+    alphaOffset = (vFocused + vSelected > 0.5) ? 1.0 : obscuredOpacity;
+  }
+  gl_FragColor = vec4(comp.xyz, alpha*alphaOffset);
 
   // Incl. atlas tone mapping & color spaces; see `../../explorer/constants.ts`
   #include <tonemapping_fragment>
