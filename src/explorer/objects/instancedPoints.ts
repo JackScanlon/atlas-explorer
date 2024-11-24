@@ -2,6 +2,7 @@ import * as Three from 'three'
 import * as VecUtils from '../common/vecUtils'
 
 import { Const } from '../constants'
+import { DisposableItem } from '../types';
 
 const IL_POINT_INDICES = [
   0, 1, 2,
@@ -49,6 +50,8 @@ export default class InstancedPoints extends Three.Mesh {
   public boundingBox?: Three.Box3;
   public boundingSphere?: Three.Sphere;
 
+  private disposables: DisposableItem[] = [];
+
   public constructor(points: Float32Array, data: Uint32Array, material: Three.ShaderMaterial) {
     // Base plane geometry
     const baseGeometry = new Three.BufferGeometry();
@@ -76,6 +79,23 @@ export default class InstancedPoints extends Three.Mesh {
 
     this.data = data;
     this.points = points;
+
+    this.disposables.push(geometry.dispose.bind(geometry));
+    this.disposables.push(baseGeometry.dispose.bind(baseGeometry));
+    this.disposables.push(material.dispose.bind(material));
+  }
+
+  public dispose(): void {
+    this.removeFromParent();
+
+    for (let i = 0; i < this.disposables.length; ++i) {
+      try {
+        this.disposables[i]();
+      }
+      catch (e) {
+        console.warn(`Disposable failed: ${e}`);
+      }
+    }
   }
 
 	public computeBoundingBox(): void {

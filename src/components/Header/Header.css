@@ -68,11 +68,11 @@
   0 0.3px 0.4px var(--glow-p2),
   0 0.9px 1.5px var(--glow-p3),
   0 3.5px 6px var(--glow-p4);
-
 }
 
 .navigation .navigation__dropdown--active {
   display: block;
+  pointer-events: auto;
   width: fit-content;
   width: -webkit-fit-content;
   min-width: 150px;

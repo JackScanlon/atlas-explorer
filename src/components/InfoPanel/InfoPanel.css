@@ -145,6 +145,7 @@ button.feature-tooltip.feature-tooltip--visible {
   position: fixed;
   width: 390px;
   min-width: min-content;
+  max-height: 60vh;
   left: 1rem;
   bottom: 1rem;
   border-radius: 0.5rem;

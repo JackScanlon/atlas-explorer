@@ -28,7 +28,7 @@ export default class VerticalAxis extends Three.Mesh<Three.PlaneGeometry, Three.
       },
       vertexShader: BillboardAxisVertShader,
       fragmentShader: BillboardAxisFragShader,
-      side: Three.DoubleSide,
+      side: Three.FrontSide,
       transparent: true,
       depthWrite: false,
     });

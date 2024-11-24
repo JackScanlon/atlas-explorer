@@ -461,8 +461,7 @@ export default class Explorer {
             wireframe: false,
             depthTest: true,
             depthWrite: true,
-            // glslVersion: Three.GLSL1,
-            side: Three.DoubleSide,
+            side: Three.FrontSide,
           }
         });
 
