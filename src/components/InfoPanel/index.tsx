@@ -1,16 +1,25 @@
 import './InfoPanel.css'
 
+import { Workspace } from '@/explorer/constants'
 import { AtlasRecord } from '@/explorer/types'
-import { createStored } from '@/utils';
+import {
+  createStored, getSecondsTimestamp,
+  bufferedThrottle, observeWithHistory, withObservableHistory
+} from '@/utils'
 
 import * as rx from 'rxjs'
 
 import { VirtualList } from '@solid-primitives/virtual';
-import { BsArrowsAngleContract, BsArrowsAngleExpand, BsXLg, BsFunnel, BsFunnelFill } from 'solid-icons/bs'
-import { Component, Accessor, createSignal, createEffect, on, Show, observable, onCleanup } from 'solid-js'
-
-const featureTooltipTimeout = 60 * 60 * 4; // i.e. 4hr
-const getSecondsTimestamp = (): number => Math.floor(Date.now() / 1000);
+import {
+  BsArrowsAngleContract, BsArrowsAngleExpand,
+  BsXLg, BsFunnel, BsFunnelFill
+} from 'solid-icons/bs'
+import {
+  Component, Accessor,
+  createSignal, createEffect,
+  on, Show,
+  onCleanup, observable
+} from 'solid-js'
 
 interface FeatureTooltipState {
   IsOpen: boolean,
@@ -42,47 +51,39 @@ const InfoPanel: Component<{
     };
   }));
 
+  const panelObservable = rx.from(observable(minimised));
   const featureWatchdog = rx.combineLatest([
-    rx.from(observable(showFilter))
+    observeWithHistory(showFilter),
+    observeWithHistory(data),
+    panelObservable
       .pipe(
-        rx.startWith(false),
-        rx.pairwise(),
-        rx.map(([previous, current]) => ({ previous, current }))
-      ),
-    rx.from(observable(data))
-      .pipe(
-        rx.startWith(null),
-        rx.pairwise(),
-        rx.map(([previous, current]) => ({ previous, current }))
-      ),
-    rx.from(observable(minimised))
-      .pipe(
-        rx.startWith(true),
-        rx.pairwise(),
-        rx.map(([previous, current]) => ({ previous, current }))
+        bufferedThrottle<boolean>(panelObservable, 200),
+        withObservableHistory<boolean>()
       ),
   ])
     .subscribe(result => {
       const [filterState, dataState, minimisedState] = result;
-      if (!!filterState.current && featureTooltip().ShouldPresent) {
-        setFeatureToolip({ ShouldPresent: false, LastPresented: getSecondsTimestamp(), IsOpen: false });
-      } else if (!filterState.current && dataState.current && !minimisedState.current) {
-        if (!featureTooltip().ShouldPresent && getSecondsTimestamp() - featureTooltip().LastPresented > featureTooltipTimeout) {
-          setFeatureToolip((prev: FeatureTooltipState): FeatureTooltipState => {
-            return { ...prev, ... { ShouldPresent: true }}
-          });
+
+      let { IsOpen, ShouldPresent, LastPresented } = featureTooltip();
+      if (!!filterState.current && ShouldPresent) {
+        IsOpen = false;
+        ShouldPresent = false;
+        LastPresented = getSecondsTimestamp();
+      } else if (!filterState.current && dataState.current && !minimisedState.current && !ShouldPresent) {
+        if (getSecondsTimestamp() - LastPresented > Workspace.AtlasFeatureTimeout) {
+          ShouldPresent = true;
         }
       }
 
-      if (!filterState.current && dataState.current && featureTooltip().ShouldPresent) {
-        setFeatureToolip((prev: FeatureTooltipState): FeatureTooltipState => {
-          return { ...prev, ... { IsOpen: !minimisedState.current }};
-        });
-      } else if (!filterState.current && !featureTooltip().ShouldPresent && featureTooltip().IsOpen) {
-        setFeatureToolip((prev: FeatureTooltipState): FeatureTooltipState => {
-          return { ...prev, ... { IsOpen: false }};
-        });
+      if (!filterState.current && dataState.current && ShouldPresent) {
+        IsOpen = !minimisedState.current;
+      } else if (!filterState.current && !ShouldPresent && IsOpen) {
+        IsOpen = false;
       }
+
+      setFeatureToolip((prev: FeatureTooltipState): FeatureTooltipState => {
+        return { ...prev, ... { IsOpen, ShouldPresent, LastPresented }};
+      });
     });
 
   onCleanup(() => {

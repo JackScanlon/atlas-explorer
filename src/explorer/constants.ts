@@ -109,6 +109,11 @@ export namespace World {
 
 export namespace Workspace {
   export const
+    // Feature tooltip timeout
+    //   - Timeout, in _seconds_, before the feature tooltip will be
+    //     presented to the client again
+    AtlasFeatureTimeout: number = 60 * 60 * 4, // i.e. 4hr
+
     // Atlas Phenotype URL target
     //   - interpolated with a record's `SlugRef` property
     AtlasUrlFmt: string = 'https://atlasofhumandisease.org/disease/',
