@@ -1,7 +1,7 @@
 import * as Three from 'three'
 
-import GridSurfaceFragShader from '@/shaders/GridSurface/gridSurface.frag?raw'
-import GridSurfaceVertShader from '@/shaders/GridSurface/gridSurface.vert?raw'
+import GridSurfaceFragShader from '@/shaders/gridSurface/gridSurface.frag?raw'
+import GridSurfaceVertShader from '@/shaders/gridSurface/gridSurface.vert?raw'
 
 import { AxisToggleTarget } from '@/explorer/types'
 import { GridSurfaceOpts, GridSurfaceAxisData } from './types'
