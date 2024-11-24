@@ -48,7 +48,7 @@ This application was developed with:
 
 2. Enter the following into your terminal to clone the repository:
 ```bash
-$ git clone https://github.com/JackScanlon/AtlasExplorerHDRUK.git
+$ git clone https://github.com/JackScanlon/atlas-explorer.git
 ```
 
 ### 3.3. Local Development
