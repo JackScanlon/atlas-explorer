@@ -53,8 +53,8 @@ const InfoPanel: Component<{
 
   const panelObservable = rx.from(observable(minimised));
   const featureWatchdog = rx.combineLatest([
-    observeWithHistory(showFilter),
-    observeWithHistory(data),
+    observeWithHistory(rx.from(observable(showFilter))),
+    observeWithHistory(rx.from(observable(data))),
     panelObservable
       .pipe(
         bufferedThrottle<boolean>(panelObservable, 200),
