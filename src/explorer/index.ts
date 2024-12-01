@@ -1,6 +1,5 @@
 import * as Utils from './common/utils'
-import * as VecUtils from './common/vecUtils'
-import * as QuatUtils from './common/quatUtils'
+import * as MathUtils from './common/mathUtils'
 
 import InputService from './services/InputService'
 import ViewportService from './services/ViewportService'
@@ -333,7 +332,7 @@ export default class Explorer {
         .multiplyScalar(0.5)
         .add(origin);
 
-      const quat = QuatUtils.quatLookAt(offset, origin);
+      const quat = MathUtils.quatLookAt(offset, origin);
       this.camera.applyQuaternion(quat);
       this.camera.position.set(offset.x, offset.y, offset.z);
       this.cameraController.target = new Three.Vector3(0, this.dataset.yAxisScale.Min, 0);
@@ -422,8 +421,9 @@ export default class Explorer {
     }
 
     this.raycaster = new Three.Raycaster();
-    this.raycaster.params.Line.threshold = 0.10;
     this.raycaster.params.Mesh.threshold = 0.05;
+    this.raycaster.params.Line.threshold = 0.50;
+    this.raycaster.params.Line2 = { threshold: 2.00 };
 
     // @ts-ignore
     this.onViewportResize(...Object.values(this.viewport.size));
@@ -508,9 +508,9 @@ export default class Explorer {
         const axes = new AtlasAxes({
           GridSurface: {
             Plane: {
-              x: { Scale: data.xAxisScale, Range: data.xDataRange },
-              y: { Scale: data.yAxisScale, Range: data.yDataRange },
-              z: { Scale: data.zAxisScale, Range: data.zDataRange },
+              x: { Scale: data.xAxisScale, Range: data.xDataRange, Title: 'Median age at first record' },
+              y: { Scale: data.yAxisScale, Range: data.yDataRange, Title: 'Frequency' },
+              z: { Scale: data.zAxisScale, Range: data.zDataRange, Title: 'Excess mortality at one year' },
             }
           },
           RadialAxis: {
@@ -521,18 +521,19 @@ export default class Explorer {
             Scale: data.xAxisScale,
             Height: data.yAxisScale.Min,
             Offset: 0,
-          },
-          VerticalAxis: {
-            Range: {
-              Min: Math.pow(10, data.yAxisScale.Min / 10),
-              Max: Math.pow(10, data.yAxisScale.Max / 10),
+            Vertical: {
+              Range: {
+                Min: Math.pow(10, data.yAxisScale.Min / 10),
+                Max: Math.pow(10, data.yAxisScale.Max / 10),
+              },
+              Size: (data.yAxisScale.Max - data.yAxisScale.Min)*2,
+              Scale: data.yAxisScale,
             },
-            Scale: data.yAxisScale,
-          },
-          AxisHelper: {
-            Scale: data.xAxisScale,
-            Size: (data.xAxisScale.Max - data.xAxisScale.Min)*2,
-            Origin: new Three.Vector3(0, data.yAxisScale.Min, 0),
+            Horizontal: {
+              Scale: data.xAxisScale,
+              Size: (data.xAxisScale.Max - data.xAxisScale.Min)*2,
+              Origin: new Three.Vector3(0, data.yAxisScale.Min, 0),
+            },
           },
         });
 
@@ -552,11 +553,7 @@ export default class Explorer {
         this.animateScene();
 
         // Observe view state
-        const sub = this.dataset.Observe().subscribe((value: AtlasViewState) => {
-          if (value === this.dataset.currentViewState) {
-            return;
-          }
-
+        const sub = this.dataset.ObserveViewState().subscribe((value: AtlasViewState) => {
           this.FocusTarget(null);
           this.tweenToView(value);
         });
@@ -818,7 +815,7 @@ export default class Explorer {
                 this.hasUpdate = true;
 
                 if (this.tooltipHandler) {
-                  VecUtils.toScreenSpace(this.selection.Origin, this.camera, this.viewport.size, this.selection.Coordinate);
+                  MathUtils.toScreenSpace(this.selection.Origin, this.camera, this.viewport.size, this.selection.Coordinate);
 
                   this.tooltipHandler({
                     Position: this.selection.Coordinate,
@@ -880,7 +877,7 @@ export default class Explorer {
 
     const worldOrigin = selection.Origin;
     const screenCoord = selection.Coordinate;
-    const targetCoord = VecUtils.toScreenSpace(worldOrigin, this.camera, this.viewport.size);
+    const targetCoord = MathUtils.toScreenSpace(worldOrigin, this.camera, this.viewport.size);
     if (targetCoord.distanceToSquared(screenCoord) >= World.TooltipOffsetThreshold) {
       this.tooltipHandler({ Position: { x: targetCoord.x, y: targetCoord.y }, Selection: selection });
       screenCoord.copy(targetCoord);

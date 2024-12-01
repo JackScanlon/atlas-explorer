@@ -1,5 +1,5 @@
 import * as Three from 'three'
-import { ExplorerOpts } from './types';
+import { ExplorerOpts, AxisId, NormalId } from './types';
 
 type OutputColorSpace = typeof Three.SRGBColorSpace | typeof Three.LinearSRGBColorSpace;
 
@@ -23,6 +23,31 @@ export namespace Const {
 
     // Constant to convert radians to degrees
     RAD2DEG = 1 / (Math.PI * 2 / 360),
+
+    /* Mappings */
+    NormalIdNameMap = new Map<NormalId, string>([
+      [ NormalId.Right,  'Right' ],
+      [   NormalId.Top,    'Top' ],
+      [  NormalId.Back,   'Back' ],
+      [  NormalId.Left,   'Left' ],
+      [NormalId.Bottom, 'Bottom' ],
+      [ NormalId.Front,  'Front' ],
+    ]),
+
+    AxisIdVectorMap = new Map<AxisId, Three.Vector3>([
+      [AxisId.X, new Three.Vector3( 1, 0,  0)],
+      [AxisId.Y, new Three.Vector3( 0, 1,  0)],
+      [AxisId.Z, new Three.Vector3( 0, 0,  1)],
+    ]),
+
+    NormalIdVectorMap = new Map<NormalId, Three.Vector3>([
+      [ NormalId.Right, new Three.Vector3( 1,  0,  0) ],
+      [   NormalId.Top, new Three.Vector3( 0,  1,  0) ],
+      [  NormalId.Back, new Three.Vector3( 0,  0,  1) ],
+      [  NormalId.Left, new Three.Vector3(-1,  0,  0) ],
+      [NormalId.Bottom, new Three.Vector3( 0, -1,  0) ],
+      [ NormalId.Front, new Three.Vector3( 0,  0, -1) ],
+    ]),
 
     /* Translation */
     // Default fill vector

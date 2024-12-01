@@ -4,6 +4,22 @@ import * as rx from 'rxjs'
 import { Setter } from 'solid-js'
 import InstancedPoints from './objects/instancedPoints';
 
+// Coordinate enum(s)
+export enum AxisId {
+  X = 0,
+  Y = 1,
+  Z = 2,
+};
+
+export enum NormalId {
+  Right  = 0,
+  Top    = 1,
+  Back   = 2,
+  Left   = 3,
+  Bottom = 4,
+  Front  = 5,
+};
+
 // Model view state target
 export enum AtlasViewState {
   RadialView  = 0,
@@ -137,7 +153,7 @@ export interface IAtlasData {
   Instantiate: (opts: AtlasBuildOptions) => AtlasGeom;
   AddRecord: (record: AtlasRecord, radialVert: Three.Vector3, scatterVert: Three.Vector3, scale: number) => IAtlasData;
   AddColorMapping: (colorValue: number) => IAtlasData;
-  Observe: () => rx.Observable<AtlasViewState>;
+  ObserveViewState: () => rx.Observable<AtlasViewState>;
 }
 
 // Three.JS `Loader` callback(s)
@@ -241,11 +257,14 @@ export enum FilterType {
 
 // Axis toggle event target
 export enum AxisToggleTarget {
-  AxesHelper   = 0,
-  AxesLabels   = 1,
-  RadialAxis   = 2,
-  VerticalAxis = 3,
-  GridSurface  = 4,
+  XAxis        = 0,
+  YAxis        = 1,
+  ZAxis        = 2,
+  AxesHelper   = 3,
+  AxesLabels   = 4,
+  RadialAxis   = 5,
+  VerticalAxis = 6,
+  GridSurface  = 7,
 };
 
 export type AxisFlag = {

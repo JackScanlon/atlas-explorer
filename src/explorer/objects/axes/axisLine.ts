@@ -1,14 +1,18 @@
 import * as Three from 'three'
 
-import { AxisLineOpts } from './types';
-import { AxisLineDefaults } from './constants';
-import { AxisToggleTarget } from '@/explorer/types';
+import { Line2 } from 'three/examples/jsm/lines/Line2'
+import { LineMaterial } from 'three/examples/jsm/lines/LineMaterial'
+import { LineGeometry } from 'three/examples/jsm/lines/LineGeometry'
+
+import { AxisLineOpts } from './types'
+import { AxisLineDefaults } from './constants'
+import { AxisToggleTarget } from '@/explorer/types'
 
 /**
  * AxisLine
  * @desc defines some interactable line component
  */
-export default class AxisLine extends Three.Line<Three.BufferGeometry, Three.LineBasicMaterial> {
+export default class AxisLine extends Line2 {
   public type: string = 'AxisLine';
   private axis!: AxisToggleTarget;
   private vertices!: Three.Vector3[];
@@ -16,35 +20,37 @@ export default class AxisLine extends Three.Line<Three.BufferGeometry, Three.Lin
   public constructor(opts: AxisLineOpts) {
     opts = { ...AxisLineDefaults, ...opts};
 
-    const material = !!opts.Dashed!
-      ? new Three.LineDashedMaterial({
-        color: opts.Color!.getHex(),
-        linewidth: opts.Width!,
-        gapSize: 1,
-        scale: 1,
-        dashSize: 2,
-        transparent: true,
-        dithering: true,
-      })
-      : new Three.LineBasicMaterial({
-        color: opts.Color!.getHex(),
-        linewidth: opts.Width!,
-        vertexColors: false,
-        transparent: true,
-        dithering: true,
-      });
+    const material = new LineMaterial({
+      color: opts.Color!.getHex(),
+      linewidth: opts.Width!,
+      gapSize: 1,
+      dashScale: 1,
+      dashSize: 2,
+      transparent: true,
+      alphaToCoverage: false,
+      vertexColors: false,
+      dashed: !!opts.Dashed,
+    });
 
-    const geometry = new Three.BufferGeometry();
+    const geometry = new LineGeometry();
     const vertices = [
       opts.Vertices!?.[0] || new Three.Vector3(0, 0, 0),
-      opts.Vertices!?.[1] || new Three.Vector3(0, 0, 0)
+      opts.Vertices!?.[1] || new Three.Vector3(0, 1, 0)
     ];
 
     super(geometry, material);
+
+    this.geometry.setPositions([
+      vertices[0].x, vertices[0].y, vertices[0].z,
+      vertices[1].x, vertices[1].y, vertices[1].z,
+    ]);
+
+
     this.axis = opts.Axis;
     this.vertices = vertices;
 
-    this.UpdateGeometry();
+    this.computeLineDistances();
+    this.geometry.computeBoundingSphere();
   }
 
   public get axisTarget(): AxisToggleTarget {
@@ -85,7 +91,12 @@ export default class AxisLine extends Three.Line<Three.BufferGeometry, Three.Lin
   }
 
   public UpdateGeometry(): void {
-    this.geometry.setFromPoints(this.vertices);
+    const [vert0, vert1] = this.vertices;
+    this.geometry.setPositions([
+      vert0.x, vert0.y, vert0.z,
+      vert1.x, vert1.y, vert1.z,
+    ]);
+
     this.geometry.computeBoundingSphere();
     this.computeLineDistances();
   }

@@ -1,5 +1,5 @@
 import * as Three from 'three'
-import * as VecUtils from '../common/vecUtils'
+import * as MathUtils from '../common/mathUtils'
 
 import { Const } from '../constants'
 import { DisposableItem } from '../types';
@@ -155,7 +155,7 @@ export default class InstancedPoints extends Three.Mesh<Three.InstancedBufferGeo
       displacement.copy(point)
         .sub(boxOrigin);
 
-      VecUtils.tryNormaliseVector(displacement, Const.UpVector);
+      MathUtils.tryNormaliseVector(displacement, Const.UpVector);
       point.add(displacement.multiplyScalar(scale));
 
       radiusSqr = Math.max(radiusSqr, boxOrigin.distanceToSquared(point));

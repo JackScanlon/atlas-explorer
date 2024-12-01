@@ -2,7 +2,7 @@ import * as Three from 'three'
 
 import { Const } from '@/explorer/constants'
 import {
-  RadialAxisOpts, AxisHelperOpts,
+  RadialAxisOpts, RadialAxisHelperOpts,
   VerticalAxisOpts, AxisLineOpts,
   GridSurfaceLineProps, GridSurfaceOpts, GridSurfaceSpacingProps
 } from './types'
@@ -18,10 +18,13 @@ export const GridSurfaceSpacingDefaults: Partial<GridSurfaceSpacingProps> = {
 export const GridSurfaceLineDefaults: Partial<GridSurfaceLineProps> = {
   Axis: 0.0020,
   Tick: 0.0015,
+  Line: 4,
 };
 
 // Default grid surface line color
 export const GridSurfaceColor = new Three.Color(0.5, 0.5, 0.5);
+// Default radial horizontal/vertical axis color
+export const GridSurfaceAxisColor = new Three.Color('#AC87C5'); // i.e. 'East Side' purple
 
 // Default grid surface orientation (plane face upwards)
 export const GridSurfaceOrientation = new Three.Quaternion().identity();
@@ -29,12 +32,15 @@ export const GridSurfaceOrientation = new Three.Quaternion().identity();
 // Default opts to construct grid surface
 export const GridSurfaceDefaults: Partial<GridSurfaceOpts> = {
   Color: GridSurfaceColor.clone(),
+  AxisColor: GridSurfaceAxisColor,
   Rotation: GridSurfaceOrientation
 };
 
 /* Radial Axis */
 // Default radial axis color
 export const RadialAxisColor = new Three.Color(0.5, 0.5, 0.5);
+// Default radial horizontal/vertical axis color
+export const RadialLineAxisColor = new Three.Color('#AC87C5'); // i.e. 'East Side' purple
 
 // Default radial axis orientation (plane face upwards)
 export const RadialAxisOrientation = new Three.Quaternion().setFromAxisAngle(Const.RightVector, -Const.PI_HALF);
@@ -49,9 +55,17 @@ export const RadialAxisDefaults: Partial<RadialAxisOpts> = {
 };
 
 // Default opts to construct radial axis
-export const AxisHelperDefaults: Partial<AxisHelperOpts> = {
-  Color: RadialAxisColor.clone(),
-  Width: 1,
+export const RadialVerticalAxisDefaults: Partial<VerticalAxisOpts> = {
+  Color: RadialLineAxisColor.clone(),
+  Width: 4,
+  Dashed: true,
+};
+
+
+// Default opts to construct radial axis
+export const RadialAxisHelperDefaults: Partial<RadialAxisHelperOpts> = {
+  Color: RadialLineAxisColor.clone(),
+  Width: 4,
   Dashed: true,
 };
 
@@ -73,7 +87,7 @@ export const AxisLineColor = new Three.Color('#AC87C5'); // i.e. 'East Side' pur
 // Default opts to construct radial axis
 export const AxisLineDefaults: Partial<AxisLineOpts> = {
   Color: AxisLineColor.clone(),
-  Width: 1,
+  Width: 4,
   Dashed: true,
   Vertices: [],
 };

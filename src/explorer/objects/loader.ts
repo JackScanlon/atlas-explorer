@@ -1,5 +1,5 @@
-import * as Three from 'three'
 import * as rx from 'rxjs'
+import * as Three from 'three'
 
 import InstancedPoints from './instancedPoints'
 
@@ -13,7 +13,7 @@ import {
 } from '../types'
 
 import { Const, World, Workspace } from '../constants'
-import { rotatePointAroundOrigin } from '../common/vecUtils'
+import { rotatePointAroundOrigin } from '../common/mathUtils'
 import {
   toFixedFloat, packAtlasColRef,
   getScalerFn, packAtlasObject, computeAxisScale
@@ -40,8 +40,7 @@ class AtlasData implements IAtlasData {
   public specialities!: AtlasSpeciality[];
   public relationships!: Record<string, AtlasTarget>;
 
-  private viewState: rx.Subject<AtlasViewState> = new rx.Subject();
-  private currentView: AtlasViewState = AtlasViewState.RadialView;
+  private viewState: rx.BehaviorSubject<AtlasViewState> = new rx.BehaviorSubject<AtlasViewState>(AtlasViewState.RadialView);
 
   public constructor(
     public points    : number[]      = [],
@@ -51,14 +50,11 @@ class AtlasData implements IAtlasData {
   ) { }
 
   public get currentViewState(): AtlasViewState {
-    return this.currentView;
+    return this.viewState.getValue();
   }
 
   public set currentViewState(value: AtlasViewState) {
-    if (this.currentView !== value) {
-      this.viewState.next(value);
-      this.currentView = value;
-    }
+    this.viewState.next(value);
   }
 
   public get boundingBox(): Three.Box3 {
@@ -161,7 +157,7 @@ class AtlasData implements IAtlasData {
     return this;
   }
 
-  public Observe(): rx.Observable<AtlasViewState> {
+  public ObserveViewState(): rx.Observable<AtlasViewState> {
     return this.viewState.asObservable();
   }
 

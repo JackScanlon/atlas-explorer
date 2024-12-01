@@ -12,12 +12,14 @@ export interface GridSurfaceSpacingProps {
 export interface GridSurfaceLineProps {
   Axis?: number,
   Tick?: number,
+  Line?: number,
 };
 
 // Grid surface props for individual axes
 export interface GridSurfaceAxis {
   Scale: AlAxisScale,
   Range: AlDataRange,
+  Title: string,
 };
 
 // Grid surface axis data props
@@ -31,31 +33,45 @@ export interface GridSurfaceAxisData {
 export interface GridSurfaceOpts {
   Plane: GridSurfaceAxisData,
   Color?: Three.Color,
+  AxisColor?: Three.Color,
   Width?: GridSurfaceLineProps,
   Spacing?: GridSurfaceSpacingProps,
   Rotation?: Three.Quaternion,
 };
 
 /* Radial Axis */
-// Radial axis constructor props
-export interface RadialAxisOpts {
-  Scale: AlAxisScale,
-  Range: AlDataRange,
-  Color?: Three.Color,
-  Width?: number,
-  Height?: number,
-  Offset?: number,
-  Rotation?: Three.Quaternion,
-};
 
 // Radial axis helper constructor props
-export interface AxisHelperOpts {
+export interface RadialAxisHelperOpts {
   Size: number,
   Scale: AlAxisScale,
   Origin: Three.Vector3,
   Color?: Three.Color,
   Width?: number,
   Dashed?: boolean,
+};
+
+// Radial vertical axis
+export interface RadialVerticalAxisOpts {
+  Size: number,
+  Scale: AlAxisScale,
+  Range: AlDataRange,
+  Color?: Three.Color,
+  Width?: number,
+  Dashed?: boolean,
+};
+
+// Radial axis constructor props
+export interface RadialAxisOpts {
+  Scale: AlAxisScale,
+  Range: AlDataRange,
+  Vertical: RadialVerticalAxisOpts,
+  Horizontal: RadialAxisHelperOpts,
+  Color?: Three.Color,
+  Width?: number,
+  Height?: number,
+  Offset?: number,
+  Rotation?: Three.Quaternion,
 };
 
 /* Linear Axis */
@@ -69,9 +85,7 @@ export interface VerticalAxisOpts {
 
 /* Global axes group */
 export interface AtlasAxesOpts {
-  AxisHelper: AxisHelperOpts,
   RadialAxis: RadialAxisOpts,
-  VerticalAxis: VerticalAxisOpts,
   GridSurface: GridSurfaceOpts,
 };
 

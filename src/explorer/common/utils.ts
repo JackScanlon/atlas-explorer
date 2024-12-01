@@ -1,13 +1,15 @@
 import * as Three from 'three'
 
-import { Const, Workspace } from '../constants'
+import { Const, Workspace } from '@/explorer/constants'
 import { isCSSRule } from '@/utils'
 import {
   AlAxisScale, AlScaleFn, AlScaleTarget,
-  AtlasDescriptor,
-  AtlasPacked, AtlasSpeciality, ExplorerElementProps
-} from '../types'
+  AtlasDescriptor, AtlasPacked, AtlasSpeciality, ExplorerElementProps
+} from '@/explorer/types'
 
+/**
+ * @desc matches camel case string patterns
+ */
 const CAMEL_CASE_PATTERN = /(?<=[a-z\d])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])/g;
 
 /**
@@ -337,4 +339,106 @@ export const computeAxisScale = (min: number, max: number, desiredSteps: number 
     Max: Math.ceil(max * invStep) * step,
     Step: step,
   };
-}
+};
+
+/**
+ * binarySearch
+ * @desc generic binary search
+ *
+ * @param {Array<T>}          arr            some target array
+ * @param {V}                 obj            some object to find within the target array
+ * @param {CompareFunc<V, T>} comparator     a comparator function
+ *
+ * @returns {number} either...
+ *    1. Some positive integer describing the index of the object found within the array
+ *    2. OR; a negative integer whose bitwise complement describes the index at which the object would be positioned
+ */
+export const binarySearch = <T, V>(arr: T[], obj: V, comparator: (a: V, b: T) => number): number => {
+  let comp     = 0,
+      left     = 0,
+      right    = arr.length - 1,
+      midpoint = 0;
+
+  while (left <= right) {
+    // i.e. ⌊ 0.5*(left + right) ⌋
+    midpoint = (left + right) >>> 1;
+
+    // compare & then bit hack to get the integer's sign (assuming 32 bit here)
+    //  - i.e. `sgn(x)`
+    //  - see ref @ https://graphics.stanford.edu/~seander/bithacks.html#CopyIntegerSign
+    //
+    comp = comparator(obj, arr[midpoint]);
+    comp = Number(comp != 0) | (comp >> 31);
+
+    switch (comp) {
+      case -1: {
+        right = --midpoint;
+      } break;
+
+      case 1: {
+        left = ++midpoint;
+      } break;
+
+      default:
+        return midpoint;
+    }
+  }
+
+  return ~left;
+};
+
+
+/**
+ * binaryInsert
+ * @desc generic binary insertion
+ *
+ * @param {Array<T>}       arr            some target array
+ * @param {T}              obj            some object to insert
+ * @param {CompareFunc<T>} comparator     a comparator function
+ * @param {boolean|any}    allowDuplicate specifies whether duplicates can be inserted (optional; defaults to `true`)
+ *
+ * @returns {number} either...
+ *    1. Some positive integer describing the index of the inserted object
+ *    2. OR; a negative integer whose bitwise complement describes the duplicate index on insertion failure
+ */
+export const binaryInsert = <T>(arr: T[], obj: T, comparator: (a: T, b: T) => number, allowDuplicate: boolean = true): number => {
+  let comp     = 0,
+      left     = 0,
+      right    = arr.length - 1,
+      midpoint = 0;
+
+  loop:
+  while (left <= right) {
+    // i.e. ⌊ 0.5*(left + right) ⌋
+    midpoint = (left + right) >>> 1;
+
+    // compare & then bit hack to get the integer's sign (assuming 32 bit here)
+    //  - i.e. `sgn(x)`
+    //  - see ref @ https://graphics.stanford.edu/~seander/bithacks.html#CopyIntegerSign
+    //
+    comp = comparator(obj, arr[midpoint]);
+    comp = Number(comp != 0) | (comp >> 31);
+
+    switch (comp) {
+      case -1:
+        right = --midpoint;
+        continue;
+
+      case 1:
+        left = ++midpoint;
+        continue;
+
+      default: {
+        if (!allowDuplicate) {
+          return ~midpoint;
+        }
+
+        left = midpoint;
+        break loop;
+      }
+    }
+  }
+
+  arr.splice(left, 0, obj);
+  return left;
+};

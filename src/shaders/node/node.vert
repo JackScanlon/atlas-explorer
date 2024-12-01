@@ -54,15 +54,6 @@ void main() {
     }
   }
 
-  // Det. if visible from uniform lookup
-  lowp uint chk = uint(1);
-  lowp uint vis = uVisible[colId];
-  if (vis != chk) {
-    vVisible = 0.0;
-  } else {
-    vVisible = 1.0;
-  }
-
   // Compute vert point & scale from uView
   highp vec3 offset = mix(rdOffset, scOffset, vec3(uView));
   vSize = mix(scale, SCATTER_SIZE, uView);
@@ -74,5 +65,16 @@ void main() {
 
   // Finalise
   highp vec2 pos = (position.xy - (center - vec2(0.5))) * (grow * vSize * mvScale);
-  gl_Position = projectionMatrix * (modelViewMatrix * vec4(offset, 1) + vec4(pos, 0, 0));
+  highp vec4 npos = projectionMatrix * (modelViewMatrix * vec4(offset, 1) + vec4(pos, 0, 0));
+
+  // Det. if visible from uniform lookup
+  lowp uint chk = uint(1);
+  lowp uint vis = uVisible[colId];
+  if (vis != chk || (uFocused >= 0.0 && vFocused < 0.5 && npos.w < 4.0)) {
+    vVisible = 0.0;
+  } else {
+    vVisible = 1.0;
+  }
+
+  gl_Position = npos;
 }
