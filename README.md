@@ -3,15 +3,21 @@
   <img align="right" src="./src/assets/atlas-logo-light.svg" alt="Atlas Explorer" height="70" title="Atlas Explorer">
 </picture>
 
+[![Project Inactive - moving to Network Graph prototype](https://img.shields.io/badge/Moved:-Network%20Graph%20WIP-red)](#prototype-atlas-explorer)
+[![Project Status: Suspended – Initial development has started, but there has not yet been a stable, usable release; work has been stopped for the time being but the author(s) intend on resuming work.](https://www.repostatus.org/badges/latest/suspended.svg)](https://www.repostatus.org/#suspended)
+
 <br/>
 <br/>
 
 # Prototype: Atlas Explorer
 
-> [!IMPORTANT]
-> - This experiment was developed on the instruction of [HDRUK](https://www.hdruk.ac.uk/)'s [Disease Atlas](https://www.ucl.ac.uk/health-informatics/research/disease-atlas) team, a project being built alongside the [BHF Data Science Centre](https://bhfdatasciencecentre.org/) and [NHS Digital](https://digital.nhs.uk/)
+> [!CAUTION]
+> - This implementation has been suspended in favour of the network graph prototype
 
 ## 1. Overview
+
+> [!IMPORTANT]
+> - This experiment was developed on the instruction of [HDRUK](https://www.hdruk.ac.uk/)'s [Disease Atlas](https://www.ucl.ac.uk/health-informatics/research/disease-atlas) team, a project being built alongside the [BHF Data Science Centre](https://bhfdatasciencecentre.org/) and [NHS Digital](https://digital.nhs.uk/)
 
 This repository implements a 3d data explorer to allow users to navigate through each of the diseases defined within the Disease Atlas.
 
