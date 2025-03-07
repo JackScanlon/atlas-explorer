@@ -1,0 +1,96 @@
+# 1. Base
+
+## 1.1. Data
+**/data-files/*
+
+## 1.2. Editor directories and files
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+*.pem
+
+## 1.3. Env
+*.env
+.env
+!.env.example
+**/env/
+
+## 1.4. Allow dev container directory incl. env file
+!.devcontainer/**
+
+## 1.5. Allow docker development directory
+!.docker/**
+
+## 1.6. Builds
+**/.next/
+**/.out/
+**/out/
+**/dist/
+**/dist-ssr/
+**/build/
+**/wheels/
+MANIFEST
+.installed.cfg
+
+## 1.7. Doc-related
+*.mo
+*.pot
+docs/_build/
+/site
+
+## 1.8. Misc. files
+**/.tmp/
+**/.priv/
+.turbo
+.vercel
+
+
+# 2. JS / TS
+## 2.1. Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+## 2.2. Node
+**/node_modules/
+**/*.local
+.pnp
+.pnp.js
+
+
+# 3. Py
+## 3.1. Env
+**/.venv/
+
+## 3.2. Cached, compiled & extension files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+## 3.3. Installer
+*.manifest
+*.spec
+pip-log.txt
+
+## 3.4. Tests
+*.cover
+.cache
+.coverage
+.coverage.*
+htmlcov/
+.hypothesis/
+.pytest_cache/
+
+## 3.5. Misc. Py
+.python-version
+__pypackages__/
+profile_default/
+ipython_config.py

@@ -1,0 +1,14 @@
+**/dist/
+**/.next/
+**/.processing/
+**/build/
+**/tmp/
+**/.tmp/
+**/.priv/
+**/node_modules/
+**/target/
+**/coverage/
+**/snapshot/
+**/generated/
+**/package-lock.json
+.changeset/*.md

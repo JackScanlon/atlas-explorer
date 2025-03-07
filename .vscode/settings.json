@@ -1,0 +1,105 @@
+{
+  // Search rules
+  "search.exclude": {
+    "**/*.snap": true,
+  },
+
+  // Git behaviour
+  "git.autofetch": true,
+
+  // Editor & Base formatting
+  "editor.tabSize": 2,
+  "editor.insertSpaces": true,
+  "editor.detectIndentation": false,
+
+  "files.trimFinalNewlines": false,
+  "files.insertFinalNewline": true,
+  "files.trimTrailingWhitespace": true,
+
+  // Language behaviour
+  "files.eol": "\n",
+
+  "[jsonc]": {
+    "editor.defaultFormatter": "vscode.json-language-features"
+  },
+  "[python]": {
+    "editor.rulers": [100],
+    "editor.formatOnSave": true,
+    "editor.formatOnPaste": true,
+    "editor.defaultFormatter": null,
+    "editor.codeActionsOnSave": {
+      "source.fixAll": "always"
+    }
+  },
+  "[html]": {
+    "editor.rulers": [140],
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.codeActionsOnSave": {
+      "source.fixAll.eslint": "always"
+    }
+  },
+  "[typescript][javascript][typescriptreact]": {
+    "editor.rulers": [140],
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.codeActionsOnSave": {
+      "source.fixAll.eslint": "always"
+    },
+    "javascript.preferences.importModuleSpecifier": "non-relative",
+    "typescript.preferences.importModuleSpecifier": "non-relative"
+  },
+
+  // Turbo config
+  "json.schemas": [
+    {
+      "fileMatch": ["turbo.json"],
+      "url": "./packages/turbo-types/schemas/schema.json"
+    }
+  ],
+
+  // Py ext. config
+  "ruff.configuration": ".ruff.toml",
+  "python.testing.pytestEnabled": true,
+  "python.testing.unittestEnabled": false,
+
+  // Typescript config
+  "typescript.enablePromptUseWorkspaceTsdk": true,
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "typescript.preferences.autoImportFileExcludePatterns": [
+    "next/router.d.ts",
+    "next/dist/client/router.d.ts"
+  ],
+
+  // Eslint config
+  "eslint.validate": [
+    "javascript",
+    "javascriptreact",
+    "typescript",
+    "typescriptreact"
+  ],
+  "eslint.workingDirectories": [{ "mode": "auto" }],
+
+  // GLSL ext. config
+  "webgl-glsl-editor.diagnostics": false,
+
+  // Editor file behaviour
+  "files.associations": {
+    "turbo.json": "jsonc",
+    "**/.prettierignore": "ini"
+  },
+  "files.readonlyInclude": {
+    ".cache/**": true,
+    ".next/**": true,
+    ".swc/**": true,
+    ".turbo/**": true,
+    "coverage/**": true,
+    "dist/**": true,
+    "e2e-report/**": true,
+    "e2e-results/**": true,
+    "node_modules/**": true,
+    "out/**": true,
+    "storybook-static/**": true,
+    ".eslintcache": true
+  }
+}

@@ -1,0 +1,60 @@
+{
+  "name": "@atlas-explorer/force-graph",
+  "version": "0.0.1",
+  "description": "A prototype renderer and backend implementation of the Atlas Explorer's force graph",
+  "private": true,
+  "main": "src/index.ts",
+  "author": "HDRUK",
+  "files": [
+    "README.md",
+    "dist"
+  ],
+  "contributors": [
+    {
+      "name": "Jack Scanlon",
+      "url": "https://github.com/JackScanlon/"
+    },
+    {
+      "name": "Ieuan Scanlon",
+      "url": "https://github.com/ieuans/"
+    }
+  ],
+  "license": "MIT",
+  "keywords": [
+    "hdruk",
+    "atlas",
+    "disease",
+    "human",
+    "explorer",
+    "graph"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/JackScanlon/atlas-explorer.git",
+    "directory": "packages/force-graph"
+  },
+  "bugs": {
+    "url": "https://github.com/JackScanlon/atlas-explorer/issues"
+  },
+  "homepage": "https://github.com/JackScanlon/atlas-explorer",
+  "exports": {
+    ".": {
+      "default": "./src/index.ts"
+    }
+  },
+  "scripts": {
+    "lint": "eslint . --max-warnings 0",
+    "lint:fix": "npm run lint -- --fix",
+    "check-types": "tsc --noEmit"
+  },
+  "dependencies": {
+    "csv-parse": "^5.6.0"
+  },
+  "devDependencies": {
+    "@atlas-explorer/eslint-config": "*",
+    "@atlas-explorer/typescript-config": "*",
+    "@types/node": "^22.13.0",
+    "eslint": "^9.20.0",
+    "typescript": "5.7.3"
+  }
+}

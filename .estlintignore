@@ -1,0 +1,10 @@
+.tmp/
+.out/
+.processing/
+.priv/
+.next/
+out/
+dist/
+target/
+build/
+node_modules/

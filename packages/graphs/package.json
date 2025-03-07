@@ -1,0 +1,77 @@
+{
+  "name": "@atlas-explorer/graph",
+  "version": "0.0.1",
+  "description": "A prototype implementation of a data explorer to traverse diseases recorded by the Human Atlas of Disease",
+  "type": "module",
+  "main": "src/index.ts",
+  "author": "HDRUK",
+  "files": [
+    "README.md",
+    "dist"
+  ],
+  "contributors": [
+    {
+      "name": "Jack Scanlon",
+      "url": "https://github.com/JackScanlon/"
+    },
+    {
+      "name": "Ieuan Scanlon",
+      "url": "https://github.com/ieuans/"
+    }
+  ],
+  "license": "MIT",
+  "keywords": [
+    "hdruk",
+    "atlas",
+    "disease",
+    "human",
+    "explorer",
+    "graph"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/JackScanlon/atlas-explorer.git",
+    "directory": "packages/graph"
+  },
+  "bugs": {
+    "url": "https://github.com/JackScanlon/atlas-explorer/issues"
+  },
+  "homepage": "https://github.com/JackScanlon/atlas-explorer",
+  "exports": {
+    ".": {
+      "default": "./src/index.ts"
+    }
+  },
+  "publishConfig": {
+    "access": "public",
+    "directory": "build"
+  },
+  "scripts": {
+    "lint": "eslint . --max-warnings 0",
+    "lint:fix": "npm run lint -- --fix",
+    "check-types": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@atlas-explorer/force-graph": "*",
+    "@atlas-explorer/eslint-config": "*",
+    "@atlas-explorer/typescript-config": "*",
+    "@types/node": "^22.13.0",
+    "@types/react": "19.0.8",
+    "@types/react-dom": "19.0.3",
+    "eslint": "^9.20.0",
+    "typescript": "5.7.3"
+  },
+  "dependencies": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "@emotion/cache": "^11.14.0",
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.0",
+    "@mui/icons-material": "^6.4.5",
+    "@mui/material": "^6.4.5",
+    "@mui/material-nextjs": "^6.4.3",
+    "@types/react-window": "^1.8.8",
+    "fuse.js": "^7.1.0",
+    "react-window": "^1.8.11"
+  }
+}
