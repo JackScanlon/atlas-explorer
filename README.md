@@ -16,7 +16,7 @@
 > [!IMPORTANT]
 > - This experiment was developed on the instruction of [HDRUK](https://www.hdruk.ac.uk/)'s [Disease Atlas](https://www.ucl.ac.uk/health-informatics/research/disease-atlas) team, a project being built alongside the [BHF Data Science Centre](https://bhfdatasciencecentre.org/) and [NHS Digital](https://digital.nhs.uk/)
 
-This repository implements a WebGl2-based FDG graph to enable users to navigate each of the diseases/medications defined within the Human Atlas of Disease; both drawing and graph layout is handled on the GPU.
+This repository implements a WebGl2-based FDG graph to enable users to navigate each of the diseases/medications defined within the Atlas of Human Disease; both drawing and graph layout is handled on the GPU.
 
 ## 2. TODO
 

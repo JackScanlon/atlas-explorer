@@ -1,7 +1,7 @@
 {
   "name": "@atlas-explorer/graph",
   "version": "0.0.1",
-  "description": "A prototype implementation of a data explorer to traverse diseases recorded by the Human Atlas of Disease",
+  "description": "A prototype implementation of a data explorer to traverse diseases recorded by the Atlas of Human Disease",
   "type": "module",
   "main": "src/index.ts",
   "author": "HDRUK",
