@@ -44,12 +44,12 @@ The project structure is composed as a monorepo, or [turborepo](https://turbo.bu
 
 ```mermaid
 graph TD
-    A[@atlas-explorer] --> B[apps]
+    A["@atlas-explorer"] --> B[apps]
     B --> C[docs]
     B --> D[web]
     A --> E[packages]
-    E --> F[@atlas-explorer/graphs]
-    E --> G[@atlas-explorer/force-graph]
+    E --> F["@atlas-explorer/graphs"]
+    E --> G["@atlas-explorer/force-graph"]
 ```
 
 The project is broadly divided into the following directories:
